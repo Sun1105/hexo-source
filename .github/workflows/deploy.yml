@@ -46,6 +46,17 @@ jobs:
         with:
           personal_token: ${{ secrets.PUBLISH_TOKEN }}   # ✅ 使用 PAT
           publish_dir: ./public
-          external_repository: Sun1105/sun1105.github.io
-          publish_branch: main
+          external_repository: Sun1105/Sun1105.github.io
+          publish_branch: master
           commit_message: "🚀 Auto deploy from Hexo source via GitHub Actions"
+
+      # 6️⃣ 同时部署到 hexo-deploy 仓库
+      - name: Deploy to hexo-deploy (push to main)
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          personal_token: ${{ secrets.PUBLISH_TOKEN }}   # ✅ 使用同一个 PAT
+          publish_dir: ./public
+          external_repository: Sun1105/hexo-deploy       # 目标仓库
+          publish_branch: main                           # 推送到 main 分支
+          commit_message: "🚀 Auto deploy to hexo-deploy via GitHub Actions"
+
