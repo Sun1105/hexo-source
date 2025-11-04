@@ -1,56 +1,31 @@
 {
   "name": "hexo-site",
-  "_comment_name": "项目名称，可以自定义",
-  "version": "1.0.0",
-  "_comment_version": "项目版本号",
+  "version": "0.0.0",
   "private": true,
-  "_comment_private": "防止意外发布到 npm 仓库",
-  "description": "My Hexo blog with dual deployment (GitHub Pages + Vercel)",
-  "_comment_description": "项目描述，说明用途",
   "scripts": {
     "clean": "hexo clean",
-    "_comment_clean": "清理缓存文件 (db.json) 和 public 文件夹",
     "build": "hexo generate",
-    "_comment_build": "生成静态文件 (等同于 hexo g)",
     "deploy": "hexo deploy",
-    "_comment_deploy": "部署到远程仓库 (等同于 hexo d)",
     "server": "hexo server",
-    "_comment_server": "启动本地预览服务器 (默认 http://localhost:4000)",
-    "cb": "hexo clean && hexo generate && hexo deploy",
-    "_comment_cb": "一键清理 → 生成 → 部署",
-    "vercel-build": "npm run clean && npm run build",
-    "_comment_vercel-build": "Vercel 部署时执行的构建命令"
+    "cb": "hexo clean && hexo g && hexo d"
   },
   "hexo": {
     "version": "8.1.1"
   },
-  "_comment_hexo": "指定 Hexo 版本，保证环境一致性",
   "dependencies": {
     "hexo": "^8.0.0",
-    "_comment_hexo": "Hexo 核心框架",
     "hexo-deployer-git": "^4.0.0",
-    "_comment_hexo-deployer-git": "Git 部署插件 (推送到 GitHub Pages / Vercel)",
     "hexo-generator-archive": "^2.0.0",
-    "_comment_hexo-generator-archive": "生成归档页面",
     "hexo-generator-category": "^2.0.0",
-    "_comment_hexo-generator-category": "生成分类页面",
     "hexo-generator-index": "^4.0.0",
-    "_comment_hexo-generator-index": "生成首页文章列表",
     "hexo-generator-tag": "^2.0.0",
-    "_comment_hexo-generator-tag": "生成标签页面",
     "hexo-renderer-ejs": "^2.0.0",
-    "_comment_hexo-renderer-ejs": "渲染 EJS 模板",
     "hexo-renderer-marked": "^7.0.0",
-    "_comment_hexo-renderer-marked": "渲染 Markdown 文件",
     "hexo-renderer-stylus": "^3.0.1",
-    "_comment_hexo-renderer-stylus": "渲染 Stylus 样式文件",
     "hexo-server": "^3.0.0",
-    "_comment_hexo-server": "本地预览服务器",
-    "hexo-theme-landscape": "^1.0.0",
-    "_comment_hexo-theme-landscape": "默认主题 Landscape"
+    "hexo-theme-landscape": "^1.0.0"
   },
   "devDependencies": {
     "eslint": "^9.0.0"
-  },
-  "_comment_devDependencies": "开发环境依赖（仅开发时使用，例如代码规范检查）"
+  }
 }
