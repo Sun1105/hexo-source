@@ -30,7 +30,7 @@ jobs:
 
       # 3️⃣ 安装依赖
       - name: Install dependencies
-        run: npm install   # ⚠️ 改为 npm install，保证 lock 文件同步（之前 npm ci 报错）
+        run: npm install   # 使用 npm install 保证 lock 文件同步
 
       # 4️⃣ 构建 Hexo 静态文件
       - name: Generate site (Hexo)
@@ -44,8 +44,8 @@ jobs:
       - name: Deploy to Pages (push to sun1105.github.io)
         uses: peaceiris/actions-gh-pages@v4
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}  # ✅ 修正：内置令牌，不需要 PAT
+          personal_token: ${{ secrets.PUBLISH_TOKEN }}   # ✅ 使用 PAT
           publish_dir: ./public
-          external_repository: Sun1105/sun1105.github.io  # 目标仓库（部署仓库）
+          external_repository: Sun1105/sun1105.github.io
           publish_branch: main
-          commit_message: "🚀 Auto deploy from blog-source via GitHub Actions"
+          commit_message: "🚀 Auto deploy from Hexo source via GitHub Actions"
