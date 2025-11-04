@@ -1,0 +1,16 @@
+<article class="post">
+  <h1 class="post-title"><%= page.title %></h1>
+  <div class="post-meta">
+    <span>发表于 <%= date(page.date, 'YYYY-MM-DD') %></span>
+    <% if (page.tags && page.tags.length) { %>
+      <span>标签：
+        <% page.tags.forEach(function(tag, i){ %>
+          <a href="<%= url_for(tag.path) %>"><%= tag.name %></a><%= i < page.tags.length - 1 ? ', ' : '' %>
+        <% }) %>
+      </span>
+    <% } %>
+  </div>
+  <div class="post-content">
+    <%- page.content %>   <!-- 渲染文章正文 -->
+  </div>
+</article>

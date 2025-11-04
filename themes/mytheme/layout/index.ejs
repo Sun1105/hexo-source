@@ -1,0 +1,26 @@
+<section class="main-section">
+  <h2 class="section-title">📘 工作笔记</h2>
+
+  <div class="post-list">
+    <% page.posts.each(function(post) { %>
+      <article class="post-card">
+        <h3 class="post-title">
+          <a href="<%= url_for(post.path) %>"><%= post.title %></a>
+        </h3>
+        <p class="post-meta">
+          发布于 <%= date(post.date, 'YYYY-MM-DD') %>
+          <% if (post.tags && post.tags.length) { %> |
+            标签：
+            <% post.tags.each(function(tag, i){ %>
+              <a href="<%= url_for(tag.path) %>"><%= tag.name %></a><%= i < post.tags.length - 1 ? ',' : '' %>
+            <% }); %>
+          <% } %>
+        </p>
+        <p class="post-excerpt">
+          <%= post.excerpt ? post.excerpt.replace(/<[^>]+>/g, '').substring(0, 100) + '...' : '（暂无摘要）' %>
+        </p>
+        <a href="<%= url_for(post.path) %>" class="read-more">阅读全文 →</a>
+      </article>
+    <% }); %>
+  </div>
+</section>

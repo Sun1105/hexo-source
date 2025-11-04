@@ -1,0 +1,126 @@
+/* ============
+   主体区域
+   ============ */
+main {
+  margin-left: 220px;
+  padding: 90px 50px 60px;
+  min-height: 100vh;
+  background: var(--color-bg);
+  transition: margin-left 0.3s ease;
+}
+
+@media (max-width: 900px) {
+  main {
+    margin-left: 0;
+    padding: 80px 24px;
+  }
+}
+
+/* ============
+   文章卡片（片段化模块）
+   ============ */
+.post {
+  background: #fff;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 28px 34px;
+  margin-bottom: 36px;
+  transition: all 0.3s ease;
+  position: relative;
+  border-left: 4px solid transparent;
+}
+
+/* hover时的浮动反馈与亮边 */
+.post:hover {
+  transform: translateY(-4px);
+  border-left: 4px solid var(--color-primary);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+}
+
+/* ============
+   标题与元信息
+   ============ */
+.post-header {
+  margin-bottom: 18px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 12px;
+}
+
+.post-header h1,
+.post-header h2 {
+  margin: 0;
+  color: var(--color-primary);
+  font-size: 1.4rem;
+  line-height: 1.4;
+}
+
+.post-meta {
+  font-size: 13px;
+  color: #999;
+  margin-top: 6px;
+}
+
+/* ============
+   正文内容
+   ============ */
+.post-content {
+  font-size: 15.5px;
+  color: #444;
+  line-height: 1.8;
+}
+
+.post-content p {
+  margin-bottom: 1em;
+}
+
+/* 图片与代码片段 */
+.post-content img {
+  display: block;
+  max-width: 100%;
+  border-radius: 6px;
+  margin: 18px 0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.post-content pre {
+  background: #f7f8fa;
+  border-radius: 6px;
+  padding: 14px;
+  overflow-x: auto;
+  font-size: 14px;
+  line-height: 1.6;
+  margin: 16px 0;
+}
+
+/* ============
+   标签与分割线
+   ============ */
+.post-tags {
+  margin-top: 16px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.post-tags span {
+  background: #eef5fa;
+  color: var(--color-primary);
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  cursor: default;
+}
+
+/* ============
+   页脚
+   ============ */
+footer {
+  text-align: center;
+  color: #777;
+  font-size: 14px;
+  padding: 30px 0;
+  background: #fff;
+  border-top: 1px solid #eaeaea;
+  margin-top: 40px;
+  box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.03);
+}

@@ -1,0 +1,165 @@
+/* ========= 主体布局 ========= */
+.main-section {
+  margin-top: 20px;
+  padding: 0 10px;
+}
+
+.section-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 20px;
+  color: var(--color-primary, #3b82f6);
+  text-align: left;
+  border-left: 5px solid var(--color-primary, #3b82f6);
+  padding-left: 12px;
+}
+
+/* ========= 卡片列表 ========= */
+.post-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+/* ========= 单个卡片 ========= */
+.post-card {
+  position: relative; /* 让 ::after 和光泽生效 */
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.06);
+  padding: 20px;
+}
+
+/* ========= Hover 动画 + 阴影渐变 ========= */
+.post-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  border-radius: 12px;
+  background: linear-gradient(145deg, rgba(59,130,246,0.05), rgba(147,197,253,0.05));
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.post-card:hover::after {
+  opacity: 1;
+}
+
+.post-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 20px rgba(0,0,0,0.18);
+}
+
+/* ========= 动态滑动光泽 ========= */
+.post-card::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    120deg,
+    rgba(255,255,255,0.15) 0%,
+    rgba(255,255,255,0.05) 50%,
+    rgba(255,255,255,0) 100%
+  );
+  transform: rotate(-25deg) translateX(-100%);
+  opacity: 0;
+  pointer-events: none;
+  border-radius: 12px;
+  transition: opacity 0.3s ease, transform 0.5s ease;
+}
+
+.post-card:hover::before {
+  opacity: 1;
+  transform: rotate(-25deg) translateX(100%);
+}
+
+/* ========= 卡片内容 ========= */
+.post-card .post-title {
+  font-size: 1.15rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+  line-height: 1.4;
+}
+
+.post-card .post-title a {
+  color: #111;
+  text-decoration: none;
+}
+
+.post-card .post-title a:hover {
+  color: var(--color-primary-dark, #1e40af);
+}
+
+.post-card .post-meta {
+  font-size: 0.85rem;
+  color: #777;
+  margin-bottom: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.post-card .post-meta a {
+  color: var(--color-primary, #3b82f6);
+  text-decoration: none;
+}
+
+.post-card .post-meta a:hover {
+  text-decoration: underline;
+}
+
+.post-card .post-excerpt {
+  font-size: 0.95rem;
+  color: #444;
+  line-height: 1.5;
+  margin-bottom: 16px;
+  flex-grow: 1;
+}
+
+.post-card .read-more {
+  align-self: flex-start;
+  background: var(--color-primary, #3b82f6);
+  color: #fff;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  text-decoration: none;
+  transition: all 0.25s ease;
+}
+
+.post-card .read-more:hover {
+  background: var(--color-primary-dark, #1e40af);
+  transform: translateY(-2px);
+}
+
+/* ========= 响应式 ========= */
+@media (max-width: 1200px) {
+  .post-list {
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  }
+}
+
+@media (max-width: 700px) {
+  .post-list {
+    grid-template-columns: 1fr;
+  }
+
+  .post-card {
+    padding: 16px;
+  }
+
+  .section-title {
+    font-size: 1.25rem;
+  }
+}

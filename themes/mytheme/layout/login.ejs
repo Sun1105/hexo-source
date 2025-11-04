@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <title>登录 - MyBlog</title>
+  <link rel="stylesheet" href="<%= url_for('/css/login.css') %>">
+</head>
+<body class="login-page">
+  <div class="login-container">
+    <h2>🔐 登录 MyBlog</h2>
+    <form id="loginForm">
+      <input type="text" id="username" placeholder="用户名" required>
+      <input type="password" id="password" placeholder="密码" required>
+      <button type="submit">登录</button>
+    </form>
+    <p id="message" class="message"></p>
+  </div>
+
+  <script>
+    // 已登录用户自动跳转主页
+    if (localStorage.getItem("isLoggedIn") === "true") {
+      window.location.href = "/";
+    }
+
+    const form = document.getElementById("loginForm");
+    const msg = document.getElementById("message");
+
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+
+      const username = document.getElementById("username").value.trim();
+      const password = document.getElementById("password").value.trim();
+
+      // 简单模拟登录验证
+      if (username === "admin" && password === "123456") {
+        msg.textContent = "登录成功，正在跳转...";
+        msg.className = "message success";
+
+        // 存储登录标记
+        localStorage.setItem("isLoggedIn", "true");
+
+        // 确保浏览器先写入 localStorage 再跳转
+        setTimeout(() => {
+          document.body.classList.add("fade-out");
+
+          // 使用 replace 避免回退到登录页
+          setTimeout(() => {
+            window.location.replace("/"); // ✅ 用 replace 比 href 更稳定
+          }, 600);
+        }, 500);
+      } else {
+              msg.textContent = "用户名或密码错误，请重试。";
+              msg.className = "message error";
+            }
+    });
+  </script>
+</body>
+</html>

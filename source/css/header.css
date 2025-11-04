@@ -1,0 +1,153 @@
+/* ================================
+   顶部导航栏 Header（现代渐变风格）
+================================ */
+
+header.top-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 64px;
+  padding: 0 30px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  background: linear-gradient(90deg, #0078d7, #00b8d9);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+
+  z-index: 1000;
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* ================================
+   Logo 部分
+================================ */
+header.top-nav .logo a {
+  color: #fff;
+  text-decoration: none;
+  font-size: 1.4rem;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  transition: opacity 0.25s ease;
+}
+
+header.top-nav .logo a:hover {
+  opacity: 0.85;
+}
+
+/* ================================
+   导航菜单
+================================ */
+header.top-nav .menu {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+/* 链接样式 */
+header.top-nav .menu a {
+  color: #fff;
+  text-decoration: none;
+  font-weight: 500;
+  padding: 6px 10px;
+  border-radius: 6px;
+  transition: background-color 0.25s ease, transform 0.2s ease;
+}
+
+header.top-nav .menu a:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+  transform: translateY(-1px);
+}
+
+/* ================================
+   分类按钮样式
+================================ */
+.menu-btn {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background-color 0.25s ease, transform 0.2s ease;
+}
+
+.menu-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: translateY(-1px);
+}
+
+.menu-btn:active {
+  transform: translateY(0);
+}
+
+/* ================================
+   退出按钮样式
+================================ */
+.logout {
+  background: #ff4d4d;
+  color: #fff;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: background-color 0.25s ease, transform 0.15s ease;
+}
+
+.logout:hover {
+  background: #e63939;
+  transform: translateY(-1px);
+}
+
+.logout:active {
+  transform: translateY(0);
+  background: #cc2f2f;
+}
+
+/* ================================
+   滚动时效果（可选）
+================================ */
+header.top-nav.scrolled {
+  background: rgba(0, 120, 215, 0.95);
+  backdrop-filter: blur(6px);
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* ================================
+   响应式（小屏幕适配）
+================================ */
+@media (max-width: 768px) {
+  header.top-nav {
+    padding: 0 16px;
+    height: 56px;
+  }
+
+  header.top-nav .logo a {
+    font-size: 1.2rem;
+  }
+
+  header.top-nav .menu {
+    gap: 8px;
+  }
+
+  .menu-btn,
+  .logout {
+    padding: 5px 10px;
+    font-size: 0.85rem;
+  }
+}
+
+/* ================================
+   特效（可选）
+================================ */
+header.top-nav {
+  backdrop-filter: blur(4px);
+}
+

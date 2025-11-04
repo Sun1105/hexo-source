@@ -1,0 +1,130 @@
+/* ================================
+   侧边导航栏 Sidebar（现代后台风格）
+================================ */
+
+.sidebar {
+  position: fixed;
+  top: 64px; /* 与 header 高度保持一致 */
+  left: 0;
+  width: 230px;
+  height: calc(100vh - 64px);
+  background: #ffffff;
+  border-right: 1px solid #e0e6ed;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.05);
+  padding: 24px 0;
+  overflow-y: auto;
+  z-index: 900;
+
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  transition: width 0.25s ease, box-shadow 0.3s ease;
+}
+
+/* ================================
+   标题部分
+================================ */
+.sidebar-title {
+  text-align: center;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--color-primary);
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.sidebar-title::after {
+  content: "";
+  display: block;
+  width: 60px;
+  height: 3px;
+  background: linear-gradient(90deg, #0078d7, #00b8d9);
+  margin: 8px auto 0;
+  border-radius: 2px;
+}
+
+/* ================================
+   列表部分
+================================ */
+.sidebar ul {
+  list-style: none;
+  padding: 0 10px;
+  margin: 0;
+}
+
+.sidebar li {
+  margin: 6px 0;
+}
+
+.sidebar a,
+.sidebar li {
+  display: block;
+  font-size: 0.95rem;
+  color: #444;
+  font-weight: 500;
+  padding: 10px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  background-color: transparent;
+  border-left: 4px solid transparent;
+}
+
+/* 鼠标悬停与激活状态 */
+.sidebar a:hover,
+.sidebar li:hover {
+  background: #f1f7fd;
+  color: var(--color-primary);
+  transform: translateX(2px);
+}
+
+.sidebar a.active,
+.sidebar li.active {
+  background: linear-gradient(90deg, #e8f3fe, #d4ecfa);
+  color: var(--color-primary);
+  font-weight: 600;
+  border-left: 4px solid var(--color-primary);
+}
+
+/* ================================
+   按钮式导航效果
+================================ */
+.sidebar li {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 6px;
+  border-radius: 6px;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.sidebar li:hover {
+  background: #f7fbff;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 120, 215, 0.15);
+}
+
+/* ================================
+   滚动条美化
+================================ */
+.sidebar::-webkit-scrollbar {
+  width: 6px;
+}
+.sidebar::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 4px;
+}
+.sidebar::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.25);
+}
+
+/* ================================
+   响应式隐藏
+================================ */
+@media (max-width: 900px) {
+  .sidebar {
+    display: none;
+  }
+}

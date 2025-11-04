@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title><%= page.title ? `${page.title} | ${config.title}` : config.title %></title>
+  <meta name="description" content="<%= config.description || '个人技术笔记与学习记录' %>">
+
+  <!-- ===== 全局样式引入 ===== -->
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/header.css">
+  <link rel="stylesheet" href="/css/sidebar.css">
+  <link rel="stylesheet" href="/css/post-list.css">
+  <link rel="stylesheet" href="/css/layout.css">
+
+  <!-- ===== 字体与图标 ===== -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon">
+
+  <!-- ===== 登录状态检查 ===== -->
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const onLoginPage = window.location.pathname.startsWith("/login");
+      if (!onLoginPage && !localStorage.getItem("isLoggedIn")) {
+        window.location.href = "/login/";
+      }
+    });
+  </script>
+</head>
+
+<body>
+  <% if (!page.simpleLayout) { %>
+    <!-- ===== 顶部导航栏 ===== -->
+    <%- partial('_partial/header') %>
+
+    <!-- ===== 侧边栏 ===== -->
+    <%- partial('_partial/sidebar') %>
+  <% } %>
+
+  <!-- ===== 主体内容区 ===== -->
+  <main id="main-content">
+    <%- body %>
+  </main>
+
+  <% if (!page.simpleLayout) { %>
+    <!-- ===== 页脚 ===== -->
+    <%- partial('_partial/footer') %>
+  <% } %>
+
+  <!-- ===== 全局脚本区域 ===== -->
+  <script>
+    // ===== 退出登录函数 =====
+    function logout() {
+      localStorage.removeItem("isLoggedIn");
+      window.location.href = "/login/";
+    }
+
+    // ===== 平滑滚动至顶部 =====
+    function scrollToTop() {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  </script>
+
+  <!-- 可选的“返回顶部”按钮 -->
+  <button id="backToTop" title="回到顶部">↑</button>
+
+  <script>
+    // ===== 返回顶部按钮逻辑 =====
+    const topBtn = document.getElementById('backToTop');
+    window.addEventListener('scroll', () => {
+      topBtn.style.display = window.scrollY > 300 ? 'block' : 'none';
+    });
+    topBtn.addEventListener('click', scrollToTop);
+  </script>
+</body>
+</html>

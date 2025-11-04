@@ -1,0 +1,32 @@
+:root {
+  --color-primary: #007acc;
+  --color-primary-dark: #005fa3;
+  --color-bg: #f5f7fa;
+  --color-text: #333;
+  --radius: 8px;
+  --shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: "Segoe UI", "Microsoft YaHei", sans-serif;
+  color: var(--color-text);
+  background: var(--color-bg);
+  height: 100%;
+  overflow-x: hidden;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+a {
+  color: var(--color-primary);
+  text-decoration: none;
+  transition: 0.2s ease;
+}
+
+a:hover {
+  color: var(--color-primary-dark);
+}

@@ -1,0 +1,52 @@
+<!--
+  page.ejs
+  通用页面模板（Hexo 主题使用）
+  功能：
+    - 标题、日期（可选）
+    - 页面正文内容（Markdown 渲染）
+    - 可选侧边栏、导航条由 layout.ejs 提供
+    - 适用于独立页面（如关于、联系、说明等）
+
+  使用说明：
+    放置在 themes/<your-theme>/layout/page.ejs
+    页面 Markdown 文件位于 source 目录下，可自定义 Front Matter
+-->
+
+<article class="page-article">
+  <!-- 标题区 -->
+  <% if (page.title) { %>
+    <header class="page-header">
+      <h1 class="page-title"><%= page.title %></h1>
+      <% if (page.date) { %>
+        <p class="page-meta">发布于 <%= date(page.date, 'YYYY-MM-DD') %></p>
+      <% } %>
+    </header>
+  <% } %>
+
+  <!-- 页面正文 -->
+  <div class="page-content">
+    <%- page.content %>
+  </div>
+
+  <!-- 页脚占位（可选） -->
+  <% if (!page.simpleLayout) { %>
+    <footer class="page-footer">
+      <p>版权声明：本文内容由作者提供，如需转载请注明来源。</p>
+    </footer>
+  <% } %>
+</article>
+
+<!-- 可选局部脚本 -->
+<script>
+  // 页面内部可能需要的 JS，如滚动效果、交互等
+</script>
+
+<!-- 推荐 CSS（可放在 theme 的 CSS 文件中） -->
+<!--
+.page-article { max-width: 900px; margin: 0 auto; padding: 24px; }
+.page-header { margin-bottom: 20px; }
+.page-title { font-size: 2rem; font-weight: 600; }
+.page-meta { color: #777; font-size: 0.9rem; margin-top: 4px; }
+.page-content { line-height: 1.8; font-size: 1rem; }
+.page-footer { margin-top: 36px; border-top: 1px solid #eee; padding-top: 18px; font-size: 0.9rem; color: #555; }
+-->
