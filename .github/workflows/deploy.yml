@@ -1,4 +1,4 @@
-name: Deploy Hexo Blog to GitHub Pages
+name: Deploy Hexo Blog to Multiple Repos
 
 on:
   push:
@@ -13,6 +13,11 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        repo:
+          - { name: "Sun1105/Sun1105.github.io", branch: "master" }
+          - { name: "Sun1105/hexo-deploy", branch: "main" }
 
     steps:
       # 1️⃣ 拉取源码
@@ -30,33 +35,20 @@ jobs:
 
       # 3️⃣ 安装依赖
       - name: Install dependencies
-        run: npm install   # 使用 npm install 保证 lock 文件同步
+        run: npm install
 
       # 4️⃣ 构建 Hexo 静态文件
       - name: Generate site (Hexo)
-        env:
-          CI: true
         run: |
           npx hexo clean
           npx hexo generate
 
-      # 5️⃣ 部署到 GitHub Pages 仓库
-      - name: Deploy to Pages (push to sun1105.github.io)
+      # 5️⃣ 部署到不同仓库（矩阵控制）
+      - name: Deploy to ${{ matrix.repo.name }}
         uses: peaceiris/actions-gh-pages@v4
         with:
-          personal_token: ${{ secrets.PUBLISH_TOKEN }}   # ✅ 使用 PAT
+          personal_token: ${{ secrets.PUBLISH_TOKEN }}   # ✅ 确保 PAT 对两个仓库都有写权限
           publish_dir: ./public
-          external_repository: Sun1105/Sun1105.github.io
-          publish_branch: master
-          commit_message: "🚀 Auto deploy from Hexo source via GitHub Actions"
-
-      # 6️⃣ 同时部署到 hexo-deploy 仓库
-      - name: Deploy to hexo-deploy (push to main)
-        uses: peaceiris/actions-gh-pages@v4
-        with:
-          personal_token: ${{ secrets.PUBLISH_TOKEN }}   # ✅ 使用同一个 PAT
-          publish_dir: ./public
-          external_repository: Sun1105/hexo-deploy       # 目标仓库
-          publish_branch: main                           # 推送到 main 分支
-          commit_message: "🚀 Auto deploy to hexo-deploy via GitHub Actions"
-
+          external_repository: ${{ matrix.repo.name }}
+          publish_branch: ${{ matrix.repo.branch }}
+          commit_message: "🚀 Auto deploy to ${{ matrix.repo.name }} via GitHub Actions"
