@@ -3,17 +3,16 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "clean": "hexo clean",
     "build": "hexo generate",
+    "clean": "hexo clean",
     "deploy": "hexo deploy",
-    "server": "hexo server",
-    "cb": "hexo clean && hexo g && hexo d"
+    "server": "hexo server"
   },
   "hexo": {
-    "version": "8.1.1"
+    "version": "8.1.0"
   },
   "dependencies": {
-    "hexo": "8.1.1",
+    "hexo": "^8.0.0",
     "hexo-deployer-git": "^4.0.0",
     "hexo-generator-archive": "^2.0.0",
     "hexo-generator-category": "^2.0.0",
@@ -24,8 +23,5 @@
     "hexo-renderer-stylus": "^3.0.1",
     "hexo-server": "^3.0.0",
     "hexo-theme-landscape": "^1.0.0"
-  },
-  "devDependencies": {
-    "eslint": "^9.0.0"
   }
 }
