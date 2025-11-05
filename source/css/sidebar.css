@@ -4,7 +4,7 @@
 
 .sidebar {
   position: fixed;
-  top: 64px; /* 与 header 高度保持一致 */
+  top: 30px; /* 与 header 高度保持一致 */
   left: 0;
   width: 230px;
   height: calc(100vh - 64px);
@@ -29,7 +29,7 @@
   font-size: 1.05rem;
   font-weight: 600;
   color: var(--color-primary);
-  margin-bottom: 20px;
+  margin-bottom: 10px;
   position: relative;
 }
 
@@ -62,7 +62,7 @@
   font-size: 0.95rem;
   color: #444;
   font-weight: 500;
-  padding: 10px 16px;
+  padding: 1px 16px;
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.25s ease;

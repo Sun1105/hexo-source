@@ -1,26 +1,73 @@
 <section class="main-section">
-  <h2 class="section-title">📘 工作笔记</h2>
+  <!-- ============================
+       主体区块（模块化显示）
+       功能：
+         - 显示工作笔记标题
+         - 遍历并渲染文章列表
+  ============================ -->
 
+  <!-- 区块标题 -->
+  <h2 class="section-title">📘 笔记列表</h2>
+  <!-- 显示模块标题，前面加 emoji 📘 -->
+
+  <!-- 博文列表容器 -->
   <div class="post-list">
     <% page.posts.each(function(post) { %>
+    <!-- 遍历当前页面的所有文章对象（post） -->
+
       <article class="post-card">
+        <!-- 单篇文章卡片容器 -->
+
+        <!-- 文章标题 -->
         <h3 class="post-title">
           <a href="<%= url_for(post.path) %>"><%= post.title %></a>
+          <!-- 使用 url_for(post.path) 生成文章链接 -->
+          <!-- 显示文章标题 post.title -->
         </h3>
+
+        <!-- 文章元信息：发布日期 + 标签 -->
         <p class="post-meta">
           发布于 <%= date(post.date, 'YYYY-MM-DD') %>
+          <!-- 使用 date() 格式化文章发布日期 -->
+
           <% if (post.tags && post.tags.length) { %> |
+          <!-- 如果文章有标签，则显示“| 标签：” -->
+
             标签：
             <% post.tags.each(function(tag, i){ %>
-              <a href="<%= url_for(tag.path) %>"><%= tag.name %></a><%= i < post.tags.length - 1 ? ',' : '' %>
+              <!-- 遍历文章标签数组 -->
+              <a href="<%= url_for(tag.path) %>"><%= tag.name %></a>
+              <!-- 标签链接，点击跳转到该标签归档页 -->
+
+              <%= i < post.tags.length - 1 ? ',' : '' %>
+              <!-- 如果不是最后一个标签，则在标签之间加逗号 -->
             <% }); %>
+
           <% } %>
         </p>
+        <!-- 文章元信息结束 -->
+
+        <!-- 文章摘要 -->
         <p class="post-excerpt">
-          <%= post.excerpt ? post.excerpt.replace(/<[^>]+>/g, '').substring(0, 100) + '...' : '（暂无摘要）' %>
+          <%= post.excerpt
+                ? post.excerpt.replace(/<[^>]+>/g, '').substring(0, 100) + '...'
+                : '（暂无摘要）' %>
+          <!-- 如果有摘要（post.excerpt），去掉 HTML 标签并截取前 100 个字符加省略号 -->
+          <!-- 如果没有摘要，则显示“暂无摘要” -->
         </p>
+
+        <!-- 阅读全文按钮 -->
         <a href="<%= url_for(post.path) %>" class="read-more">阅读全文 →</a>
+        <!-- 点击跳转到文章详情页 -->
+
       </article>
+      <!-- 单篇文章卡片结束 -->
+
     <% }); %>
+    <!-- 遍历文章结束 -->
+
   </div>
+  <!-- 博文列表容器结束 -->
+
 </section>
+<!-- 主体区块结束 -->

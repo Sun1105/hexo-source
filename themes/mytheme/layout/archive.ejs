@@ -1,0 +1,67 @@
+<section class="archive-timeline">
+  <!-- ============================
+       文章归档时间轴模块
+       功能：
+         - 按年份分组文章
+         - 按时间顺序渲染文章列表
+         - 每篇文章显示发布日期、标题、摘要
+  ============================ -->
+
+  <% 
+    // 当前年份变量，用于分组
+    let currentYear = null; 
+
+    // 将文章按日期倒序排列
+    page.posts.sort('date', -1).forEach(function(post, index){
+      let year = post.date.year();
+
+      // 如果年份发生变化，输出新的年份标题和时间轴容器
+      if (year !== currentYear) {
+        // 如果不是第一年，先关闭上一个年份的容器
+        if (currentYear !== null) { %>
+            </div> <!-- timeline 结束 -->
+          </div> <!-- archive-year 结束 -->
+        <% } %>
+
+        <div class="archive-year">
+          <!-- 单个年份组容器 -->
+          <h2><%= year %></h2>
+          <!-- 显示年份标题，例如 2025 -->
+          <div class="timeline">
+            <!-- 时间轴容器 -->
+      <% 
+        currentYear = year; 
+      } 
+      %>
+
+      <!-- 单篇文章时间轴项 -->
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <!-- 时间轴节点，用于标记文章位置 -->
+
+        <div class="timeline-content">
+          <span class="timeline-date"><%= date(post.date, 'MM-DD') %></span>
+          <!-- 显示文章发布日期（只显示月-日） -->
+
+          <a href="<%= url_for(post.path) %>" class="timeline-title"><%= post.title %></a>
+          <!-- 文章标题，点击跳转到文章详情页 -->
+
+          <% if (post.excerpt) { %>
+            <p class="timeline-excerpt"><%= strip_html(post.excerpt) %></p>
+            <!-- 如果文章有摘要，则显示摘要 -->
+          <% } %>
+        </div>
+      </div>
+      <!-- 单篇文章时间轴项结束 -->
+
+      <% 
+        // 如果下一篇文章不存在，或者下一篇文章的年份不同，则关闭容器
+        let next = page.posts.data[index + 1];
+        if (!next || next.date.year() !== currentYear) { %>
+            </div> <!-- timeline 结束 -->
+          </div> <!-- archive-year 结束 -->
+        <% } 
+    }); 
+  %>
+</section>
+<!-- 文章归档时间轴模块结束 -->

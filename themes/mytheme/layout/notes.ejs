@@ -1,0 +1,208 @@
+<section class="main-section">   
+  <!-- ============================
+       在线笔记系统模块
+       功能：
+         - 列出已有文章
+         - 新建文章
+         - 编辑文章（标题、分类、标签、内容）
+         - 实时 Markdown 预览
+         - 保存到 GitHub 仓库，触发 Vercel 自动部署
+  ============================ -->
+  <h1 style="text-align:center;">📒 在线笔记系统</h1>
+
+  <div style="max-width:1000px; margin:20px auto;">
+    <!-- 新建文章按钮 -->
+    <button id="newNoteBtn" style="padding:10px 15px; background:#0078d7; color:#fff; border:none; border-radius:5px; cursor:pointer;">📝 新建文章</button>
+
+    <!-- 文章列表容器 -->
+    <div id="noteList" style="margin-top:20px;"></div>
+
+    <!-- 编辑器弹窗 -->
+    <div id="editorModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5);">
+      <div style="background:#fff; width:90%; max-width:800px; margin:50px auto; padding:20px; border-radius:8px; position:relative;">
+        <h2 id="editorTitle">编辑文章</h2>
+
+        <!-- 标题输入框 -->
+        <input type="text" id="noteTitle" placeholder="标题" style="width:100%; padding:8px; margin-bottom:10px;">
+
+        <!-- 分类输入框 -->
+        <input type="text" id="noteCategory" placeholder="分类" style="width:100%; padding:8px; margin-bottom:10px;">
+
+        <!-- 标签输入框 -->
+        <input type="text" id="noteTags" placeholder="标签，用逗号分隔" style="width:100%; padding:8px; margin-bottom:10px;">
+
+        <!-- 内容输入框 -->
+        <textarea id="noteContent" rows="15" style="width:100%; padding:8px;"></textarea>
+
+        <!-- 保存/取消按钮 -->
+        <div style="margin-top:10px; display:flex; gap:10px;">
+          <button id="saveNoteBtn" style="flex:1; padding:10px; background:#28a745; color:#fff; border:none; border-radius:5px; cursor:pointer;">💾 保存</button>
+          <button id="cancelEditBtn" style="flex:1; padding:10px; background:#dc3545; color:#fff; border:none; border-radius:5px; cursor:pointer;">❌ 取消</button>
+        </div>
+
+        <!-- Markdown 实时预览 -->
+        <div id="preview" style="margin-top:20px; padding:10px; border:1px solid #ddd; border-radius:5px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script>
+  const owner = "你的GitHub用户名";   // 替换成你的 GitHub 用户名
+  const repo = "你的仓库名";          // 替换成你的仓库名
+  const postsDir = "_posts";          // Hexo 文章目录
+  let editingNote = null;             // 当前正在编辑的文章对象
+
+  const noteListDiv = document.getElementById('noteList');
+  const editorModal = document.getElementById('editorModal');
+  const noteTitle = document.getElementById('noteTitle');
+  const noteCategory = document.getElementById('noteCategory'); // 分类输入框
+  const noteTags = document.getElementById('noteTags');
+  const noteContent = document.getElementById('noteContent');
+  const saveNoteBtn = document.getElementById('saveNoteBtn');
+  const cancelEditBtn = document.getElementById('cancelEditBtn');
+  const previewDiv = document.getElementById('preview');
+
+  // ========================
+  // 1️⃣ 列出文章列表
+  // ========================
+  async function loadNotes() {
+    noteListDiv.innerHTML = "加载中...";
+    try {
+      const res = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${postsDir}`);
+      const data = await res.json();
+      if(res.ok){
+        noteListDiv.innerHTML = "";
+        data.forEach(file => {
+          if(file.name.endsWith(".md")){
+            const div = document.createElement('div');
+            div.style.padding = "10px";
+            div.style.borderBottom = "1px solid #ddd";
+            div.style.cursor = "pointer";
+            div.textContent = file.name;
+            div.addEventListener('click', () => openEditor(file));
+            noteListDiv.appendChild(div);
+          }
+        });
+      } else {
+        noteListDiv.innerHTML = "❌ 获取文章列表失败：" + JSON.stringify(data);
+      }
+    } catch(err){
+      noteListDiv.innerHTML = "❌ 网络错误：" + err.message;
+    }
+  }
+
+  // ========================
+  // 2️⃣ 打开编辑器
+  // ========================
+  async function openEditor(file){
+    editingNote = file;
+    try {
+      const res = await fetch(file.download_url);
+      const contentText = await res.text();
+      const shaRes = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${postsDir}/${file.name}`);
+      const shaData = await shaRes.json();
+      editingNote.sha = shaData.sha;
+
+      // 填充编辑器
+      noteTitle.value = contentText.match(/title:\s*(.*)/)?.[1] || file.name;
+      noteCategory.value = contentText.match(/category:\s*(.*)/)?.[1] || ""; // 分类
+      noteTags.value = contentText.match(/tags:\s*\[(.*)\]/)?.[1] || "";
+      noteContent.value = contentText.split('---').slice(2).join('---').trim();
+
+      previewDiv.innerHTML = marked.parse(noteContent.value);
+      editorModal.style.display = "block";
+    } catch(err){
+      alert("❌ 打开编辑器失败：" + err.message);
+    }
+  }
+
+  // ========================
+  // 3️⃣ 新建文章
+  // ========================
+  document.getElementById('newNoteBtn').addEventListener('click', () => {
+    editingNote = null;
+    noteTitle.value = "";
+    noteCategory.value = "";
+    noteTags.value = "";
+    noteContent.value = "";
+    previewDiv.innerHTML = "";
+    editorModal.style.display = "block";
+  });
+
+  // ========================
+  // 4️⃣ 保存文章
+  // ========================
+  saveNoteBtn.addEventListener('click', async () => {
+    const title = noteTitle.value.trim();
+    const category = noteCategory.value.trim(); // 分类
+    const tags = noteTags.value.split(',').map(t=>t.trim()).filter(Boolean);
+    const content = noteContent.value.trim();
+
+    if(!title || !content){
+      alert("标题和内容不能为空！");
+      return;
+    }
+
+    const mdContent = `---
+  title: ${title}
+  category: ${category}
+  tags: [${tags.join(',')}]
+  date: ${new Date().toISOString()}
+  ---
+
+  ${content}
+  `;
+
+    try {
+      let path, sha, message;
+      if(editingNote){
+        path = `${postsDir}/${editingNote.name}`;
+        sha = editingNote.sha;
+        message = `编辑文章: ${title}`;
+      } else {
+        const fileName = `${Date.now()}-${title.replace(/\s+/g,'-')}.md`;
+        path = `${postsDir}/${fileName}`;
+        sha = undefined;
+        message = `新建文章: ${title}`;
+      }
+
+      const res = await fetch(editingNote ? '/api/edit-note' : '/api/new-note', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ path, sha, content: mdContent, message })
+      });
+
+      const data = await res.json();
+      if(res.ok){
+        alert('✅ 保存成功！请稍等 Vercel 自动部署。');
+        editorModal.style.display = "none";
+        loadNotes();
+      } else {
+        alert('❌ 保存失败：' + JSON.stringify(data.error));
+      }
+    } catch(err){
+      alert("❌ 网络或服务器错误：" + err.message);
+    }
+  });
+
+  // ========================
+  // 5️⃣ 取消编辑
+  // ========================
+  cancelEditBtn.addEventListener('click', () => {
+    editorModal.style.display = "none";
+  });
+
+  // ========================
+  // 6️⃣ 实时 Markdown 预览
+  // ========================
+  noteContent.addEventListener('input', () => {
+    previewDiv.innerHTML = marked.parse(noteContent.value);
+  });
+
+  // ========================
+  // 7️⃣ 初始化加载文章列表
+  // ========================
+  loadNotes();
+  </script>
+</section>

@@ -1,64 +1,41 @@
 <aside class="sidebar" id="sidebar">
+  <!-- ============================
+       侧边栏模块
+       功能：
+         - 自动读取 Hexo 分类数据
+         - 自动读取 Hexo 标签数据
+         - 渲染为分类导航和标签云
+  ============================ -->
+
+  <!-- 分类导航 -->
   <h3 class="sidebar-title">📘 分类导航</h3>
-  <ul id="navList">
-    <li>请选择上方分类</li>
+  <ul class="category-list">
+    <% if (site.categories && site.categories.length) { %>
+      <% site.categories.sort('name').forEach(function(cat){ %>
+        <li>
+          <a href="<%= url_for(cat.path) %>">
+            <%= cat.name %> (<%= cat.length %>)
+          </a>
+        </li>
+      <% }); %>
+    <% } else { %>
+      <li>暂无分类</li>
+    <% } %>
+  </ul>
+
+  <!-- 标签云 -->
+  <h3 class="sidebar-title">🏷️ 标签云</h3>
+  <ul class="tag-list">
+    <% if (site.tags && site.tags.length) { %>
+      <% site.tags.sort('name').forEach(function(tag){ %>
+        <li>
+          <a href="<%= url_for(tag.path) %>">
+            <%= tag.name %> (<%= tag.length %>)
+          </a>
+        </li>
+      <% }); %>
+    <% } else { %>
+      <li>暂无标签</li>
+    <% } %>
   </ul>
 </aside>
-
-<script>
-  // ====== 菜单数据 ======
-  const menuData = {
-    'Java': ['基础语法', '集合框架', 'Stream 流', '异常处理'],
-    'SpringBoot': ['项目结构', 'Controller', 'Service', '配置文件'],
-    'JUnit': ['单元测试', 'Mock 测试', '参数化测试'],
-    'Maven': ['依赖管理', '插件配置', '生命周期'],
-    'Mybatis': ['Mapper', 'SQL语句', '分页插件'],
-    'Git': ['基本命令', '分支操作', '冲突解决'],
-    'SQL': ['SELECT', 'JOIN', '事务'],
-    'VBA': ['Excel 自动化', '表单操作', '宏安全'],
-    'Azure': ['App Service', 'DevOps', 'Blob 存储'],
-    'Docker': ['镜像构建', '容器运行', 'Compose 管理'],
-    '前端': ['HTML/CSS', 'JavaScript', 'React/Vue 概览'],
-    '架构分析': ['分层设计', 'DDD', '微服务结构'],
-    '快捷键': ['VSCode 快捷键', 'Eclipse 快捷键']
-  };
-
-  // ====== 由 header 调用的函数：点击上方按钮时触发 ======
-  function selectMenu(category) {
-    const navList = document.getElementById('navList');
-    navList.innerHTML = '';
-
-    // 没有数据情况
-    if (!menuData[category]) {
-      navList.innerHTML = '<li>暂无内容</li>';
-      return;
-    }
-
-    // 动态生成侧边栏项
-    menuData[category].forEach(item => {
-      const li = document.createElement('li');
-      li.textContent = item;
-
-      // 点击侧边栏项 → 激活样式 & 更新右侧内容
-      li.addEventListener('click', () => {
-        // 激活样式
-        document.querySelectorAll('#navList li').forEach(el => el.classList.remove('active'));
-        li.classList.add('active');
-
-        // 更新右侧主内容区
-        const main = document.getElementById('main-content');
-        if (main) {
-          main.innerHTML = `
-            <div class="content-card">
-              <h2>${item}</h2>
-              <p>这是 <strong>${category}</strong> 分类下的 <strong>${item}</strong> 内容示例。</p>
-              <p>（此处可以替换成 Markdown 渲染内容或文章列表）</p>
-            </div>
-          `;
-        }
-      });
-
-      navList.appendChild(li);
-    });
-  }
-</script>

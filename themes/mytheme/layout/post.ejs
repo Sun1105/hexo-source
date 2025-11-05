@@ -1,16 +1,48 @@
+<!--
+  post.ejs
+  文章详情页模板
+  功能：
+    - 显示文章标题
+    - 显示文章发布日期和标签
+    - 渲染文章正文内容
+-->
+
 <article class="post">
+  <!-- 单篇文章容器，用于文章详情页布局和样式 -->
+
+  <!-- 文章标题 -->
   <h1 class="post-title"><%= page.title %></h1>
+  <!-- page.title → 当前文章标题 -->
+
+  <!-- 文章元信息：发布日期 + 标签 -->
   <div class="post-meta">
     <span>发表于 <%= date(page.date, 'YYYY-MM-DD') %></span>
+    <!-- 显示文章发布日期 -->
+
     <% if (page.tags && page.tags.length) { %>
+      <!-- 判断文章是否有标签 -->
+
       <span>标签：
         <% page.tags.forEach(function(tag, i){ %>
-          <a href="<%= url_for(tag.path) %>"><%= tag.name %></a><%= i < page.tags.length - 1 ? ', ' : '' %>
+          <a href="<%= url_for(tag.path) %>"><%= tag.name %></a>
+          <%= i < page.tags.length - 1 ? ', ' : '' %>
+          <!-- 遍历文章标签，生成标签链接 -->
+          <!-- 多个标签用逗号分隔 -->
         <% }) %>
       </span>
+
     <% } %>
+    <!-- 标签判断结束 -->
   </div>
+  <!-- 文章元信息结束 -->
+
+  <!-- 文章正文内容 -->
   <div class="post-content">
-    <%- page.content %>   <!-- 渲染文章正文 -->
+    <%- page.content %>
+    <!-- 渲染文章正文 HTML -->
+    <!-- 使用 <%- %> 不转义 HTML，保证内容中的标签生效 -->
   </div>
+  <!-- 文章正文结束 -->
+
 </article>
+<!-- 单篇文章容器结束 -->

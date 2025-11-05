@@ -2,9 +2,19 @@
 <html lang="zh">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- 设置字符集为 UTF-8 -->
 
-  <title><%= page.title ? `${page.title} | ${config.title}` : config.title %></title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- 响应式布局，适配移动设备 -->
+
+  <!-- 页面标题 -->
+  <!-- 如果当前页面有标题，则显示 "页面标题 | 网站标题" -->
+  <!-- 否则只显示网站标题 config.title -->
+  <title>
+    <%= page.title ? `${page.title} | ${config.title}` : config.title %>
+  </title>
+
+  <!-- 页面描述，用于 SEO -->
   <meta name="description" content="<%= config.description || '个人技术笔记与学习记录' %>">
 
   <!-- ===== 全局样式引入 ===== -->
@@ -12,11 +22,16 @@
   <link rel="stylesheet" href="/css/header.css">
   <link rel="stylesheet" href="/css/sidebar.css">
   <link rel="stylesheet" href="/css/post-list.css">
+  <link rel="stylesheet" href="/css/page.css">
+  <link rel="stylesheet" href="/css/category.css">
+  <link rel="stylesheet" href="/css/archive.css">
   <link rel="stylesheet" href="/css/layout.css">
+  <!-- 各模块样式，便于维护 -->
 
   <!-- ===== 字体与图标 ===== -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="icon" href="/images/favicon.ico" type="image/x-icon">
+  <!-- 网站 favicon 和 Google 字体 -->
 
   <!-- ===== 登录状态检查 ===== -->
   <script>
@@ -25,6 +40,7 @@
       if (!onLoginPage && !localStorage.getItem("isLoggedIn")) {
         window.location.href = "/login/";
       }
+      // 如果未登录且不在登录页，自动跳转到登录页
     });
   </script>
 </head>
@@ -33,20 +49,19 @@
   <% if (!page.simpleLayout) { %>
     <!-- ===== 顶部导航栏 ===== -->
     <%- partial('_partial/header') %>
+    <!-- 导入 header 部分模板 -->
 
     <!-- ===== 侧边栏 ===== -->
     <%- partial('_partial/sidebar') %>
+    <!-- 导入 sidebar 部分模板 -->
   <% } %>
 
   <!-- ===== 主体内容区 ===== -->
   <main id="main-content">
     <%- body %>
+    <!-- 渲染当前页面内容 -->
+    <!-- <%- %> 保证 HTML 正常渲染，不转义 -->
   </main>
-
-  <% if (!page.simpleLayout) { %>
-    <!-- ===== 页脚 ===== -->
-    <%- partial('_partial/footer') %>
-  <% } %>
 
   <!-- ===== 全局脚本区域 ===== -->
   <script>
@@ -54,24 +69,37 @@
     function logout() {
       localStorage.removeItem("isLoggedIn");
       window.location.href = "/login/";
+      // 清除登录标记并跳转登录页
     }
 
     // ===== 平滑滚动至顶部 =====
     function scrollToTop() {
       window.scrollTo({ top: 0, behavior: "smooth" });
+      // 平滑滚动到页面顶部
+    }
+
+    // ===== 切换小屏幕菜单展开/收起 =====
+    function toggleMenu() {
+      const menu = document.querySelector('header.top-nav .menu');
+      if (menu) {
+        menu.classList.toggle('show');
+        // 切换菜单显示状态，便于移动端操作
+      }
     }
   </script>
 
-  <!-- 可选的“返回顶部”按钮 -->
+  <!-- ===== 可选的“返回顶部”按钮 ===== -->
   <button id="backToTop" title="回到顶部">↑</button>
 
   <script>
     // ===== 返回顶部按钮逻辑 =====
     const topBtn = document.getElementById('backToTop');
     window.addEventListener('scroll', () => {
+      // 当页面向下滚动超过 300px 显示按钮，否则隐藏
       topBtn.style.display = window.scrollY > 300 ? 'block' : 'none';
     });
     topBtn.addEventListener('click', scrollToTop);
+    // 点击按钮触发平滑滚动到顶部
   </script>
 </body>
 </html>

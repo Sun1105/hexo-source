@@ -1,0 +1,103 @@
+<section class="main-section">   
+  <!-- ============================
+       新建笔记模块（分类下拉 + 标签自动提示）
+       功能：
+         - 选择已有分类
+         - 输入标签（逗号分隔）
+         - 输入标题、正文
+         - 提交表单到 Vercel API
+  ============================ -->
+
+  <h1 style="text-align:center;">📝 新建笔记</h1>
+
+  <form id="newNoteForm">
+    <!-- 标题输入 -->
+    <label for="title">标题：</label>
+    <input type="text" id="title" name="title" required>
+
+    <!-- 分类下拉选择 -->
+    <label for="category">分类：</label>
+    <select id="category" name="category" required>
+      <option value="">请选择分类</option>
+      <option>Java</option>
+      <option>SpringBoot</option>
+      <option>JUnit</option>
+      <option>Maven</option>
+      <option>Mybatis</option>
+      <option>Git</option>
+      <option>SQL</option>
+      <option>VBA</option>
+      <option>Azure</option>
+      <option>Docker</option>
+      <option>前端</option>
+      <option>架构分析</option>
+      <option>快捷键</option>
+    </select>
+
+    <!-- 标签输入 -->
+    <label for="tags">标签（用逗号分隔）：</label>
+    <input type="text" id="tags" name="tags" placeholder="例如 Java, Stream">
+
+    <!-- 内容输入 -->
+    <label for="content">内容：</label>
+    <textarea id="content" name="content" rows="10" required></textarea>
+
+    <!-- 提交按钮 -->
+    <button type="submit">提交</button>
+  </form>
+
+  <style>
+    /* 表单整体样式 */
+    #newNoteForm { 
+      max-width: 1200px; 
+      margin: 40px auto; 
+      padding:25px; 
+      border:1px solid #ddd; 
+      border-radius:8px; 
+      background:#fafafa; 
+      font-family:"Segoe UI",sans-serif; 
+    }
+    #newNoteForm label { display:block; margin:15px 0 5px; font-weight:bold; }
+    #newNoteForm input, #newNoteForm textarea, #newNoteForm select { 
+      width:100%; padding:10px; border:1px solid #ccc; border-radius:6px; margin-bottom:10px; font-size:14px; 
+    }
+    #newNoteForm button { width:100%; padding:12px; background:#0078d7; color:#fff; border:none; border-radius:6px; cursor:pointer; font-weight:bold; }
+    #newNoteForm button:hover { background:#005a9e; }
+  </style>
+
+  <script>
+    document.getElementById('newNoteForm').addEventListener('submit', async function(e){
+      e.preventDefault(); // 阻止表单默认刷新
+
+      const form = e.target;
+      const payload = {
+        title: form.title.value,                  // 标题
+        category: form.category.value,            // 分类
+        tags: form.tags.value.split(',')          // 标签数组
+                  .map(t => t.trim())
+                  .filter(Boolean),
+        content: form.content.value               // 内容
+      };
+
+      try {
+        // 调用 Vercel API 创建新笔记
+        const res = await fetch('/api/new-note', {
+          method: 'POST',
+          headers: {'Content-Type':'application/json'},
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+
+        if(res.ok){
+          alert('✅ 笔记创建成功！');
+          window.location.href = '/'; // 成功跳转首页
+        } else {
+          alert('❌ 创建失败：' + JSON.stringify(data.error));
+        }
+      } catch(err){
+        alert('❌ 网络或服务器错误：' + err.message);
+      }
+    });
+  </script>
+</section>

@@ -2,59 +2,98 @@
 <html lang="zh">
 <head>
   <meta charset="UTF-8">
+  <!-- 页面字符集设置为 UTF-8 -->
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- 响应式布局，适配移动设备 -->
+
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
+  <!-- 禁止浏览器缓存，保证每次加载最新页面 -->
+
   <title>登录 - MyBlog</title>
+  <!-- 页面标题 -->
+
   <link rel="stylesheet" href="<%= url_for('/css/login.css') %>">
+  <!-- 引入登录页样式 -->
+  <!-- url_for() → Hexo 方法生成正确的资源路径 -->
 </head>
+
 <body class="login-page">
+  <!-- 登录页主容器，class="login-page" 用于 CSS 样式 -->
+
   <div class="login-container">
+    <!-- 登录表单容器 -->
+
     <h2>🔐 登录 MyBlog</h2>
+    <!-- 页面标题，带锁的 emoji 提示安全性 -->
+
     <form id="loginForm">
+      <!-- 登录表单 -->
       <input type="text" id="username" placeholder="用户名" required>
+      <!-- 用户名输入框 -->
+
       <input type="password" id="password" placeholder="密码" required>
+      <!-- 密码输入框 -->
+
       <button type="submit">登录</button>
+      <!-- 提交按钮 -->
     </form>
+
     <p id="message" class="message"></p>
+    <!-- 登录反馈信息显示容器 -->
   </div>
 
   <script>
+    // ===============================
     // 已登录用户自动跳转主页
+    // ===============================
     if (localStorage.getItem("isLoggedIn") === "true") {
       window.location.href = "/";
     }
+    // 如果 localStorage 中有登录标记，则直接跳转主页
 
     const form = document.getElementById("loginForm");
     const msg = document.getElementById("message");
 
     form.addEventListener("submit", (e) => {
       e.preventDefault();
+      // 阻止表单默认提交行为
 
       const username = document.getElementById("username").value.trim();
       const password = document.getElementById("password").value.trim();
+      // 获取输入框值并去掉空格
 
+      // ===============================
       // 简单模拟登录验证
+      // ===============================
       if (username === "admin" && password === "123456") {
+        // 登录成功逻辑
         msg.textContent = "登录成功，正在跳转...";
         msg.className = "message success";
+        // 显示成功信息
 
-        // 存储登录标记
         localStorage.setItem("isLoggedIn", "true");
+        // 存储登录标记
 
-        // 确保浏览器先写入 localStorage 再跳转
+        // 延时动画效果，先写入 localStorage 再跳转
         setTimeout(() => {
           document.body.classList.add("fade-out");
+          // 可以配合 CSS 动画做淡出效果
 
-          // 使用 replace 避免回退到登录页
           setTimeout(() => {
-            window.location.replace("/"); // ✅ 用 replace 比 href 更稳定
+            window.location.replace("/");
+            // 跳转到主页
+            // 使用 replace 避免用户回退返回登录页
           }, 600);
         }, 500);
+
       } else {
-              msg.textContent = "用户名或密码错误，请重试。";
-              msg.className = "message error";
-            }
+        // 登录失败逻辑
+        msg.textContent = "用户名或密码错误，请重试。";
+        msg.className = "message error";
+        // 显示错误信息
+      }
     });
   </script>
 </body>

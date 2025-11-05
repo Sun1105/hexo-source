@@ -1,21 +1,67 @@
 <header class="top-nav">
-  <div class="logo"><a href="/">首页</a></div>
+  <!-- ============================
+       顶部导航栏模块
+       功能：
+         - 显示网站 logo
+         - 提供主菜单导航
+         - 技术分类下拉菜单
+         - 新建笔记 / 关于我 / 我的项目 / 技能树
+         - 小屏幕汉堡菜单切换
+         - 退出登录按钮
+  ============================ -->
+
+  <!-- 网站 Logo -->
+  <div class="logo">
+    <a href="/">首页</a>
+    <!-- 点击跳转到网站首页 -->
+  </div>
+
+  <!-- 汉堡按钮（小屏幕时显示） -->
+  <button class="menu-toggle" onclick="toggleMenu()" aria-label="切换菜单">☰</button>
+  <!-- onclick 调用 toggleMenu() 切换移动端菜单显示状态 -->
+
+  <!-- 主菜单容器 -->
   <nav class="menu">
-    <!-- 固定入口 -->
+
+    <!-- 普通菜单项 -->
     <a href="/new-note/">新建笔记</a>
-
-    <!-- 新增的独立页面入口 -->
+    <a href="/notes/">笔记列表</a>
+    <a href="/archives/">时间轴</a>
     <a href="/about/">关于我</a>
-    <a href="/projects/">我的项目</a>
+    <a href="/projects/">项目集</a>
     <a href="/skills/">技能树</a>
+    <!-- 点击跳转到对应页面 -->
 
-    <!-- 技术分类菜单 -->
-    <% const menus = ['Java','SpringBoot','JUnit','Maven','Mybatis','Git','SQL','VBA','Azure','Docker','前端','架构分析','快捷键']; %>
-    <% menus.forEach(m => { %>
-      <button class="menu-btn" onclick="selectMenu('<%= m %>')"><%= m %></button>
-    <% }) %>
+    <!-- 技术分类下拉菜单 -->
+    <div class="dropdown">
+      <button class="menu-btn" type="button">技术分类</button>
+      <!-- 下拉按钮，点击显示分类列表 -->
 
-    <!-- 退出按钮 -->
+      <div class="dropdown-content">
+        <% 
+          // 定义技术分类数组
+          const menus = ['Java','SpringBoot','JUnit','Maven','Mybatis','Git','SQL','VBA','Azure','Docker','前端','架构分析','快捷键']; 
+        %>
+
+        <% menus.forEach(m => { %>
+          <!-- 遍历技术分类数组，生成菜单项 -->
+          <!-- 跳转到 /categories/分类名/ 页面 -->
+          <a href="<%= url_for('/categories/' + m + '/') %>"><%= m %></a>
+
+          <!-- 如果希望点击动态更新侧边栏而不是跳转，可改为：
+          <a href="javascript:void(0)" onclick="selectMenu('<%= m %>')"><%= m %></a> -->
+          
+        <% }) %>
+      </div>
+    </div>
+    <!-- 技术分类下拉菜单结束 -->
+
+    <!-- 退出登录按钮 -->
     <button class="logout" onclick="logout()">退出</button>
+    <!-- 点击调用 logout() 清除登录状态并跳转登录页 -->
+
   </nav>
+  <!-- 主菜单容器结束 -->
+
 </header>
+<!-- 顶部导航栏结束 -->

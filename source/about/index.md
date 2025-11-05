@@ -1,5 +1,5 @@
 ---
-title: 关于我
+title: 📑 关于我
 date: 2025-01-01
 layout: page
 simpleLayout: false   # 如果想隐藏页脚，可以改成 true

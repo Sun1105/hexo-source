@@ -3,7 +3,10 @@
    ============ */
 main {
   margin-left: 220px;
-  padding: 90px 50px 60px;
+  padding-top: 10px;
+  padding-right: 50px;
+  padding-bottom: 60px;
+  padding-left: 30px;
   min-height: 100vh;
   background: var(--color-bg);
   transition: margin-left 0.3s ease;

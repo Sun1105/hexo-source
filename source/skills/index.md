@@ -1,5 +1,5 @@
 ---
-title: 技能树
+title: 📓 技能树
 date: 2025-01-15
 layout: page
 simpleLayout: false
