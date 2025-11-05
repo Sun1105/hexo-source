@@ -20,8 +20,8 @@ export default async function handler(req, res){
       return res.status(400).json({ error: '缺少文件 SHA，无法编辑' });
     }
 
-    const owner = '你的GitHub用户名';
-    const repo = '你的仓库名';
+    const owner = "Sun1105";   // 替换成你的 GitHub 用户名
+    const repo = "hexo-source";          // 替换成你的仓库名
     const token = process.env.GITHUB_TOKEN;
 
     const base64Content = Buffer.from(content).toString('base64');
