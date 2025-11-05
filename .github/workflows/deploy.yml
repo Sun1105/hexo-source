@@ -53,5 +53,5 @@ jobs:
           personal_token: ${{ secrets.PUBLISH_TOKEN }}   # PAT，需对两个仓库有写权限
           publish_dir: ./public                          # Hexo 输出目录
           external_repository: ${{ matrix.repo.name }}   # 目标仓库
-          publish_branch: ${{ matrix.repo.branch }}      # 目标分支
+          publish_branch: gh-pages     # 目标分支
           commit_message: "🚀 Deploy ${{ github.sha }} to ${{ matrix.repo.name }} (run ${{ github.run_number }})"
