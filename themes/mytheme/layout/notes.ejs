@@ -111,7 +111,7 @@
           // 右侧：附加信息（比如更新时间）
           const meta = document.createElement('span');
           meta.className = "note-meta";
-          meta.textContent = new Date(file.git_url ? file.git_url : Date.now()).toLocaleDateString();
+          meta.textContent = (file.size / 1024).toFixed(1) + " KB";
 
           div.appendChild(left);
           div.appendChild(meta);
@@ -180,15 +180,15 @@
       return;
     }
 
-  const mdContent = `---
-  title: ${title}
-  category: ${category}
-  tags: [${tags.join(',')}]
-  date: ${new Date().toISOString()}
-  ---
+const mdContent = `---
+title: ${title}
+category: ${category}
+tags: [${tags.join(', ')}]
+date: ${new Date().toISOString()}
+---
 
-  ${content}
-  `;
+${content}
+`;
 
     try {
       let path, sha, message;
@@ -197,26 +197,26 @@
         sha = editingNote.sha;
         message = `编辑文章: ${title}`;
       } else {
-        const fileName = `${Date.now()}-${title.replace(/\s+/g,'-')}.md`;
+        const safeTitle = title.replace(/[^a-zA-Z0-9\u4e00-\u9fa5]+/g, '-');
+        const fileName = `${Date.now()}-${safeTitle}.md`;
         path = `${postsDir}/${fileName}`;
         sha = undefined;
         message = `新建文章: ${title}`;
       }
 
-      const res = await fetch(editingNote ? '/api/edit-note' : '/api/new-note', {
+    try {
+      const data = await fetchJson(editingNote ? '/api/edit-note' : '/api/new-note', {
         method:'POST',
         headers:{'Content-Type':'application/json'},
         body: JSON.stringify({ path, sha, content: mdContent, message })
       });
+      alert('✅ 保存成功！请稍等 Vercel 自动部署。');
+      editorModal.style.display = "none";
+      loadNotes();
+    } catch(err){
+      alert("❌ 保存失败：" + err.message);
+    }
 
-      const data = await res.json();
-      if(res.ok){
-        alert('✅ 保存成功！请稍等 Vercel 自动部署。');
-        editorModal.style.display = "none";
-        loadNotes();
-      } else {
-        alert('❌ 保存失败：' + JSON.stringify(data.error));
-      }
     } catch(err){
       alert("❌ 网络或服务器错误：" + err.message);
     }
