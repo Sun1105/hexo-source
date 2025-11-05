@@ -1,26 +1,51 @@
-// api/new-note.js
+/**
+ * 新建文章 API
+ * 前端传入：
+ *  {
+ *    path: 文件路径，例如 _posts/1699170000000-标题.md
+ *    content: Markdown 内容
+ *    message: Git 提交信息
+ *  }
+ * 后端使用 GitHub Token 写入仓库
+ */
 export default async function handler(req, res) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method Not Allowed' });
-  }
-
-  const { path, content, message } = req.body;
-
-  if (!path || !content) {
-    return res.status(400).json({ error: 'Missing required fields' });
+  if(req.method !== 'POST'){
+    return res.status(405).json({ error: '只允许 POST 请求' });
   }
 
   try {
-    const githubRes = await fetch(`https://api.github.com/repos/${process.env.GITHUB_OWNER}/${process.env.GITHUB_REPO}/contents/${path}`, {
+    const { path, content, message } = req.body;
+
+    // GitHub 仓库信息
+    const owner = "Sun1105";   // 替换成你的 GitHub 用户名
+    const repo = "hexo-source";          // 替换成你的仓库名
+    const token = process.env.GITHUB_TOKEN; // 在 Vercel 环境变量中设置
+
+    // Markdown 内容必须 Base64 编码
+    const base64Content = Buffer.from(content).toString('base64');
+
+    // 调用 GitHub API 创建新文件
+    const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, {
       method: 'PUT',
       headers: {
-        'Authorization': `token ${process.env.GITHUB_TOKEN}`, // 在 Vercel 环境变量里配置
-        'Content-Type': 'application/json'
+        'Authorization': `token ${token}`,
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        message: message || `Add ${path}`,
-        content: Buffer.from(content).toString('base64')
-      })
+        message: message || `新建文章`,
+        content: base64Content,
+      }),
     });
 
-    const data = await githubRes.json();
+    const data = await response.json();
+
+    if(response.ok){
+      res.status(200).json({ success: true, url: data.content.html_url });
+    } else {
+      res.status(400).json({ error: data });
+    }
+
+  } catch(err){
+    res.status(500).json({ error: err.message });
+  }
+}

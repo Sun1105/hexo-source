@@ -48,10 +48,10 @@
 
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script>
-  const owner = "Sun1105";   // 替换成你的 GitHub 用户名
-  const repo = "hexo-source";          // 替换成你的仓库名
-  const postsDir = "_posts";          // Hexo 文章目录
-  let editingNote = null;             // 当前正在编辑的文章对象
+  const owner = "Sun1105";              // 替换成你的 GitHub 用户名
+  const repo = "hexo-source";           // 替换成你的仓库名
+  const postsDir = "source/_posts";     // Hexo 文章目录
+  let editingNote = null;               // 当前正在编辑的文章对象
 
   const noteListDiv = document.getElementById('noteList');
   const editorModal = document.getElementById('editorModal');
@@ -74,15 +74,37 @@
       if(res.ok){
         noteListDiv.innerHTML = "";
         data.forEach(file => {
-          if(file.name.endsWith(".md")){
-            const div = document.createElement('div');
-            div.style.padding = "10px";
-            div.style.borderBottom = "1px solid #ddd";
-            div.style.cursor = "pointer";
-            div.textContent = file.name;
-            div.addEventListener('click', () => openEditor(file));
-            noteListDiv.appendChild(div);
-          }
+        if(file.name.endsWith(".md")){
+          const div = document.createElement('div');
+          div.className = "note-item";
+
+          // 左侧：图标 + 文件名
+          const left = document.createElement('div');
+          left.style.display = "flex";
+          left.style.alignItems = "center";
+
+          const icon = document.createElement('span');
+          icon.className = "note-icon";
+          icon.textContent = "📄";
+
+          const title = document.createElement('span');
+          title.className = "note-title";
+          title.textContent = file.name;
+
+          left.appendChild(icon);
+          left.appendChild(title);
+
+          // 右侧：附加信息（比如更新时间）
+          const meta = document.createElement('span');
+          meta.className = "note-meta";
+          meta.textContent = new Date(file.git_url ? file.git_url : Date.now()).toLocaleDateString();
+
+          div.appendChild(left);
+          div.appendChild(meta);
+
+          div.addEventListener('click', () => openEditor(file));
+          noteListDiv.appendChild(div);
+        }
         });
       } else {
         noteListDiv.innerHTML = "❌ 获取文章列表失败：" + JSON.stringify(data);
@@ -205,4 +227,51 @@
   // ========================
   loadNotes();
   </script>
+  <style>
+    /* 文件列表整体容器 */
+    #noteList {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    /* 单个文章项 */
+    .note-item {
+      padding: 12px 16px;
+      border: 1px solid #e0e0e0;
+      border-radius: 6px;
+      background: #fafafa;
+      transition: all 0.2s ease;
+      font-family: "Segoe UI", sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    /* 鼠标悬停效果 */
+    .note-item:hover {
+      background: #f0f8ff;
+      border-color: #0078d7;
+      transform: translateY(-2px);
+      cursor: pointer;
+    }
+
+    /* 文件名 */
+    .note-title {
+      font-weight: 600;
+      color: #333;
+    }
+
+    /* 文件图标 */
+    .note-icon {
+      margin-right: 8px;
+      color: #0078d7;
+    }
+
+    /* 时间戳或附加信息 */
+    .note-meta {
+      font-size: 12px;
+      color: #666;
+    }
+  </style>
 </section>
