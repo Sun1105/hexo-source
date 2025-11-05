@@ -180,12 +180,12 @@
       return;
     }
 
-const mdContent = `---
+const mdContent = `\u002d\u002d\u002d
 title: ${title}
 category: ${category}
 tags: [${tags.join(', ')}]
 date: ${new Date().toISOString()}
----
+\u002d\u002d\u002d
 
 ${content}
 `;
