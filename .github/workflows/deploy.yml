@@ -3,12 +3,15 @@ name: Deploy Hexo Blog to Multiple Repos
 on:
   push:
     branches:
-      - main
-  workflow_dispatch:
+      - main   # 当 main 分支有提交时触发
+  workflow_dispatch:   # 支持手动触发
 
 concurrency:
-  group: hexo-deploy
+  group: hexo-deploy   # 同一时间只运行一个部署任务
   cancel-in-progress: true
+
+permissions:
+  contents: write   # 必须有写权限，否则推送会报 403
 
 jobs:
   build:
@@ -16,26 +19,26 @@ jobs:
     strategy:
       matrix:
         repo:
-          - { name: "Sun1105/Sun1105.github.io", branch: "master" }
-          - { name: "Sun1105/hexo-deploy", branch: "main" }
+          - { name: "Sun1105/Sun1105.github.io", branch: "master" }  # GitHub Pages 仓库
+          - { name: "Sun1105/hexo-deploy", branch: "main" }         # 备份/CI 仓库
 
     steps:
       # 1️⃣ 拉取源码
       - name: Checkout source
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 0   # 保留完整 Git 历史
 
       # 2️⃣ 设置 Node.js 环境
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
+          cache: 'npm'   # 缓存 npm 依赖，加快构建
 
-      # 3️⃣ 安装依赖
+      # 3️⃣ 安装依赖（推荐 npm ci，保证版本一致）
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
       # 4️⃣ 构建 Hexo 静态文件
       - name: Generate site (Hexo)
@@ -47,8 +50,8 @@ jobs:
       - name: Deploy to ${{ matrix.repo.name }}
         uses: peaceiris/actions-gh-pages@v4
         with:
-          personal_token: ${{ secrets.PUBLISH_TOKEN }}   # ✅ 确保 PAT 对两个仓库都有写权限
-          publish_dir: ./public
-          external_repository: ${{ matrix.repo.name }}
-          publish_branch: ${{ matrix.repo.branch }}
-          commit_message: "🚀 Auto deploy to ${{ matrix.repo.name }} via GitHub Actions"
+          personal_token: ${{ secrets.PUBLISH_TOKEN }}   # PAT，需对两个仓库有写权限
+          publish_dir: ./public                          # Hexo 输出目录
+          external_repository: ${{ matrix.repo.name }}   # 目标仓库
+          publish_branch: ${{ matrix.repo.branch }}      # 目标分支
+          commit_message: "🚀 Deploy ${{ github.sha }} to ${{ matrix.repo.name }} (run ${{ github.run_number }})"
