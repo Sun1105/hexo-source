@@ -17,9 +17,9 @@ export default async function handler(req, res) {
     const { path, content, message } = req.body;
 
     // GitHub 仓库信息
-    const owner = process.env.GITHUB_OWNER;    // 替换成你的 GitHub 用户名
-    const repo = process.env.GITHUB_REPO;          // 替换成你的仓库名
-    const token = process.env.GITHUB_TOKEN;      // 在 Vercel 环境变量中设置
+    const owner = "Sun1105";   // 替换成你的 GitHub 用户名
+    const repo = "hexo-source";          // 替换成你的仓库名
+    const token = process.env.GITHUB_TOKEN; // 在 Vercel 环境变量中设置
 
     // Markdown 内容必须 Base64 编码
     const base64Content = Buffer.from(content).toString('base64');
