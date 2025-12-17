@@ -29,37 +29,10 @@
       <!-- 遍历当前分类下每篇文章 post -->
       <!-- post 对象包含文章标题、路径、日期、分类、标签、摘要等信息 -->
 
-      <!-- 单篇文章卡片 -->
-      <article class="post-card">
-        <!-- post-card 的内容（标题/相关信息/摘要） -->
-        <h3 class="post-title">
-          <a href="<%= url_for(post.path) %>"><%= post.title %></a>
-        </h3>
-        <p class="post-meta">
-          发布于 <%= date(post.date, 'YYYY-MM-DD') %>
-        </p>
-        <p class="post-excerpt">
-          <%= post.excerpt
-                ? post.excerpt.replace(/<[^>]+>/g, '').substring(0, 100) + '...'
-                : '（暂无摘要）' %>
-        </p>
-
-        <!-- 按钮容器 -->
-        <div class="button-container">
-          <!-- 阅读全文按钮 -->
-          <a href="<%= url_for(post.path) %>" class="read-more">阅读全文</a>
-          
-          <!-- 编辑全文按钮 -->
-          <a href="javascript:void(0)" class="edit-more" 
-             onclick="openEditor({
-               name: '<%= post.path.split('/').pop() %>',
-               download_url: '<%= post.download_url %>',
-             })">编辑全文</a>
-        </div>
-        <!-- 按钮容器结束 -->
-
-      </article>
-      <!-- 单篇文章卡片结束 -->
+        <%- partial('_partial/post-card', { post: post }) %>
+        <!-- 调用局部模板 _partial/post-card.ejs 渲染文章卡片 -->
+        <!-- 将当前文章对象 post 传入模板 -->
+        <!-- <%- %> 输出 HTML，不转义，保证标签正常显示 -->
 
       <% }); %>
       <!-- 遍历文章结束 -->
@@ -78,73 +51,3 @@
 
 </section>
 <!-- 页面主容器结束 -->
-
-<script>
-  // ========================
-  // 编辑器函数
-  // ========================
-  async function openEditor(file) {
-    editingNote = file;
-    try {
-      const res = await fetch(file.download_url);
-      const contentText = await res.text();
-      const shaRes = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${postsDir}/${file.name}`);
-      const shaData = await shaRes.json();
-      editingNote.sha = shaData.sha;
-
-      // 编辑器填充
-      document.getElementById('note-title').value = contentText.match(/title:\s*(.*)/)?.[1] || file.name;
-      document.getElementById('note-category').value = contentText.match(/category:\s*(.*)/)?.[1] || "";
-      document.getElementById('note-tags').value = contentText.match(/tags:\s*\[(.*)\]/)?.[1] || "";
-      document.getElementById('note-content').value = contentText.split('---').slice(2).join('---').trim();
-
-      document.getElementById('preview-div').innerHTML = marked.parse(document.getElementById('note-content').value);
-      document.getElementById('editor-modal').style.display = "block";
-    } catch (err) {
-      alert("❌ 打开编辑器失败：" + err.message);
-    }
-  }
-
-  function closeEditor() {
-    document.getElementById('editor-modal').style.display = "none";
-  }
-</script>
-
-<style>
-  /* 按钮容器 */
-  .button-container {
-    display: flex;
-    align-items: center;
-  }
-
-  /* 阅读全文按钮 */
-  .read-more {
-    display: inline-block;
-    padding: 10px 15px;
-    background-color: #007bff;
-    color: #fff;
-    text-decoration: none;
-    border-radius: 5px;
-    font-size: 14px;
-    transition: background-color 0.3s ease;
-  }
-  .read-more:hover {
-    background-color: #0056b3;
-  }
-
-  /* 编辑全文按钮 */
-  .edit-more {
-    display: inline-block;
-    padding: 10px 15px;
-    background-color: #28a745;
-    color: #fff;
-    text-decoration: none;
-    border-radius: 5px;
-    font-size: 14px;
-    transition: background-color 0.3s ease;
-    margin-left: auto; /* 将按钮推送到最右侧 */
-  }
-  .edit-more:hover {
-    background-color: #1c7c31;
-  }
-</style>
