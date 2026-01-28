@@ -127,8 +127,13 @@
   flex-grow: 1;
 }
 
-.post-card .read-more {
+.post-card .post-actions {
   align-self: flex-start;
+  display: flex;
+  gap: 10px;
+}
+
+.post-card .read-more {
   background: var(--color-primary, #3b82f6);
   color: #fff;
   padding: 6px 12px;
@@ -136,6 +141,10 @@
   font-size: 0.9rem;
   text-decoration: none;
   transition: all 0.25s ease;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  display: inline-block;
 }
 
 .post-card .read-more:hover {

@@ -54,8 +54,13 @@
     <!-- 截取前 100 个字符，如果为空则显示“暂无摘要” -->
   </p>
 
-  <!-- 阅读全文按钮 -->
-  <a href="<%= url_for(post.path) %>" class="read-more">阅读全文 →</a>
+  <!-- 操作按钮容器 -->
+  <div class="post-actions">
+    <!-- 阅读全文按钮 -->
+    <a href="<%= url_for(post.path) %>" class="read-more">阅读全文 →</a>
+    <!-- 编辑按钮 -->
+    <button onclick="openEditor('<%= post.source.replace(/\\/g, '/') %>')" class="read-more">✏️ 编辑</button>
+  </div>
   <!-- 链接到文章详情页 -->
   <!-- CSS class "read-more" 用于样式化按钮 -->
 
