@@ -1,8 +1,8 @@
 ---
 title: Java + Spring Boot 企业级全栈技术清单
-date: 2026-02-04T13:38:32.798Z
-categories: [日语笔记]
-tags: [日语单词]
+date: 2026-02-04T13:48:32.653Z
+categories: [全栈技术清单]
+tags: [全栈技术清单]
 ---
 
 <!doctype html>
