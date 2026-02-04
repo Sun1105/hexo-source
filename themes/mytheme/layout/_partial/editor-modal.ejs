@@ -213,15 +213,16 @@
     newFileContent += content;
 
     // Base64 编码
-    const contentBase64 = window.btoa(unescape(encodeURIComponent(newFileContent)));
-
+    // const contentBase64 = window.btoa(unescape(encodeURIComponent(newFileContent)));
+    // API 期望直接的字符串，它会在后端进行 Base64 编码
+    
     const sha = editingNote ? editingNote.sha : null;
-    const path = editingNote ? editingNote.path : `source/_posts/${title}.md`;
+    const path = editingNote ? editingNote.path : `source/_posts/${Date.now()}-${title}.md`;
 
     const payload = {
         path: path,
         message: sha ? `Update ${title}` : `Create ${title}`,
-        content: contentBase64,
+        content: newFileContent, // 直接发送内容，后端处理 Base64
         sha: sha
     };
 
