@@ -38,9 +38,42 @@
 
   <!-- 文章正文内容 -->
   <div class="post-content">
-    <%- page.content %>
-    <!-- 渲染文章正文 HTML -->
-    <!-- 使用 <%- %> 不转义 HTML，保证内容中的标签生效 -->
+    <% 
+      const contentTrimmed = page.content.trim();
+      // Check if content is a full HTML document
+      const isFullHtml = contentTrimmed.match(/^\s*<!DOCTYPE/i) || contentTrimmed.match(/^\s*<html/i);
+    %>
+
+    <% if (isFullHtml) { %>
+      <!-- Full HTML content rendered in iframe -->
+      <iframe id="post-content-iframe" style="width:100%; height:800px; border:1px solid #eee; background: #fff;"></iframe>
+      <script>
+        (function() {
+          const frame = document.getElementById('post-content-iframe');
+          // Use encodeURIComponent on server side (build time) to safely embed content
+          const rawContent = decodeURIComponent("<%- encodeURIComponent(page.content) %>");
+          
+          const doc = frame.contentDocument || frame.contentWindow.document;
+          doc.open();
+          doc.write(rawContent);
+          doc.close();
+
+          // Auto resize height
+          frame.onload = function() {
+            try {
+              const height = frame.contentWindow.document.body.scrollHeight;
+              if (height > 0) {
+                 frame.style.height = (height + 50) + 'px';
+              }
+            } catch(e) { console.error("Auto resize failed", e); }
+          };
+        })();
+      </script>
+    <% } else { %>
+      <%- page.content %>
+      <!-- 渲染文章正文 HTML -->
+      <!-- 使用 <%- %> 不转义 HTML，保证内容中的标签生效 -->
+    <% } %>
   </div>
   <!-- 文章正文结束 -->
 
