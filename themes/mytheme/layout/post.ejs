@@ -39,7 +39,21 @@
   <!-- 文章正文内容 -->
   <div class="post-content">
     <% 
-      const contentTrimmed = page.content.trim();
+      let rawBody = "";
+      if (page.raw) {
+        // Attempt to extract raw content by stripping Front Matter
+        const parts = page.raw.split(/^---$/m);
+        if (page.raw.trim().startsWith('---') && parts.length >= 3) {
+          rawBody = parts.slice(2).join('---');
+        } else {
+          rawBody = page.raw;
+        }
+      } else {
+        // Fallback to rendered content if raw is unavailable
+        rawBody = page.content;
+      }
+      
+      const contentTrimmed = rawBody.trim();
       // Check if content is a full HTML document
       const isFullHtml = contentTrimmed.match(/^\s*<!DOCTYPE/i) || contentTrimmed.match(/^\s*<html/i);
     %>
@@ -50,8 +64,8 @@
       <script>
         (function() {
           const frame = document.getElementById('post-content-iframe');
-          // Use encodeURIComponent on server side (build time) to safely embed content
-          const rawContent = decodeURIComponent("<%- encodeURIComponent(page.content) %>");
+          // Use rawBody to preserve full HTML structure including DOCTYPE/HEAD
+          const rawContent = decodeURIComponent("<%- encodeURIComponent(rawBody) %>");
           
           const doc = frame.contentDocument || frame.contentWindow.document;
           doc.open();
