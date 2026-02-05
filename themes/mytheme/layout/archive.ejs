@@ -46,9 +46,16 @@
           <a href="<%= url_for(post.path) %>" class="timeline-title"><%= post.title %></a>
           <!-- 文章标题，点击跳转到文章详情页 -->
 
-          <% if (post.excerpt) { %>
-            <p class="timeline-excerpt"><%= strip_html(post.excerpt) %></p>
-            <!-- 如果文章有摘要，则显示摘要 -->
+          <% 
+            var archiveExcerpt = '';
+            if (post.description) {
+              archiveExcerpt = post.description;
+            } else if (post.excerpt) {
+              archiveExcerpt = strip_html(post.excerpt);
+            }
+          %>
+          <% if (archiveExcerpt) { %>
+            <p class="timeline-excerpt"><%= archiveExcerpt %></p>
           <% } %>
         </div>
       </div>

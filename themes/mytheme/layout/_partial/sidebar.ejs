@@ -14,7 +14,8 @@
       <% site.categories.sort('name').forEach(function(cat){ %>
         <li>
           <a href="<%= url_for(cat.path) %>">
-            <%= cat.name %> (<%= cat.length %>)
+            <span class="sidebar-name"><%= cat.name %></span>
+            <span class="sidebar-count"><%= cat.length %></span>
           </a>
         </li>
       <% }); %>
@@ -23,6 +24,9 @@
     <% } %>
   </ul>
 
+  <!-- 分割线 -->
+  <div class="sidebar-divider"></div>
+
   <!-- 标签云 -->
   <h3 class="sidebar-title">🏷️ 标签云</h3>
   <ul class="tag-list">
@@ -30,7 +34,8 @@
       <% site.tags.sort('name').forEach(function(tag){ %>
         <li>
           <a href="<%= url_for(tag.path) %>">
-            <%= tag.name %> (<%= tag.length %>)
+            <span class="sidebar-name"><%= tag.name %></span>
+            <span class="sidebar-count"><%= tag.length %></span>
           </a>
         </li>
       <% }); %>

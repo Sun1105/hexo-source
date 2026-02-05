@@ -41,9 +41,11 @@ body.login-page {
   justify-content: center;
   align-items: center;
   background: linear-gradient(135deg, #dbe6f6, #c5796d);
-  font-family: "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  font-family: "Inter", "Noto Sans SC", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Microsoft YaHei", sans-serif;
   overflow: hidden;
   animation: fadeIn 0.8s ease;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* ================================
