@@ -5,6 +5,12 @@
     <!-- 标题输入框 -->
     <input type="text" id="noteTitle" placeholder="标题" style="width:100%; padding:8px; margin-bottom:10px;">
 
+    <!-- 文件名输入框 (新增) -->
+    <div style="margin-bottom: 10px; font-size: 0.85rem; color: #666; display: flex; align-items: center; gap: 10px;">
+        <label for="noteFilename" style="white-space: nowrap;">文件路径:</label>
+        <input type="text" id="noteFilename" placeholder="source/_posts/filename.md" style="flex: 1; padding: 5px; font-family: monospace; color: #555;">
+    </div>
+
     <!-- 分类输入框 -->
     <input type="text" id="noteCategory" placeholder="分类" style="width:100%; padding:8px; margin-bottom:10px;">
 
@@ -41,6 +47,7 @@
 
   const editorModal = document.getElementById('editorModal');
   const noteTitle = document.getElementById('noteTitle');
+  const noteFilename = document.getElementById('noteFilename');
   const noteCategory = document.getElementById('noteCategory');
   const noteTags = document.getElementById('noteTags');
   const noteContent = document.getElementById('noteContent');
@@ -132,6 +139,7 @@
     if (!file) {
         // 新建模式
         noteTitle.value = "";
+        noteFilename.value = "source/_posts/" + Date.now() + ".md"; // 默认文件名
         noteCategory.value = "";
         noteTags.value = "";
         noteContent.value = "";
@@ -143,18 +151,41 @@
     // 编辑模式
     document.getElementById('editorTitle').innerText = "编辑文章";
     noteTitle.value = "加载中...";
+    noteFilename.value = file.path || ""; // 填充文件路径
     noteContent.value = "加载中...";
 
     try {
       // 获取文件内容
-      // 如果没有content属性，可能需要再次获取blob? 通常contents API返回content
       let content = "";
-      if (file.content) {
-        // GitHub API returns base64 content with newlines
-        content = decodeURIComponent(escape(window.atob(file.content.replace(/\n/g, ""))));
+      if (file.content && file.encoding === 'base64') {
+          // 使用 TextDecoder 处理 UTF-8 字符，比 escape/decodeURIComponent 更现代且稳健
+          try {
+              const binaryString = window.atob(file.content.replace(/\n/g, ""));
+              const bytes = new Uint8Array(binaryString.length);
+              for (let i = 0; i < binaryString.length; i++) {
+                  bytes[i] = binaryString.charCodeAt(i);
+              }
+              content = new TextDecoder('utf-8').decode(bytes);
+          } catch (e) {
+              console.warn("TextDecoder failed, falling back to legacy decode:", e);
+              content = decodeURIComponent(escape(window.atob(file.content.replace(/\n/g, ""))));
+          }
+      } else if (file.download_url) {
+          // 文件较大时（>1MB），API 不返回 content，需从 download_url 获取
+          console.log("File content too large, fetching from download_url...");
+          const rawRes = await fetch(file.download_url);
+          if (!rawRes.ok) {
+              throw new Error(`无法从 download_url 获取内容: ${rawRes.status}`);
+          }
+          content = await rawRes.text();
       } else {
-        // 尝试通过download_url获取? 
-        // 简化起见，假设content存在
+          // 兜底：如果 API 返回结构不符合预期
+          if (file.content) {
+             // 非 base64 编码？直接使用
+             content = file.content;
+          } else {
+             throw new Error("未找到文件内容 (No content field and no download_url)");
+          }
       }
 
       // 解析Front Matter
@@ -246,10 +277,25 @@
     const content = noteContent.value;
     const categories = noteCategory.value.trim();
     const tags = noteTags.value.trim();
+    let filepath = noteFilename.value.trim();
 
     if (!title) {
       alert("请输入标题");
       return;
+    }
+    
+    if (!filepath) {
+        alert("请输入文件路径");
+        return;
+    }
+    
+    // 确保路径以 source/ 开头 (可选，视需求而定，Hexo通常在source下)
+    if (!filepath.startsWith('source/')) {
+        filepath = 'source/' + filepath;
+    }
+    // 确保以 .md 结尾
+    if (!filepath.endsWith('.md')) {
+        filepath += '.md';
     }
 
     // 构造新的文件内容（含 Front Matter）
@@ -266,13 +312,21 @@
     // API 期望直接的字符串，它会在后端进行 Base64 编码
     
     const sha = editingNote ? editingNote.sha : null;
-    const path = editingNote ? editingNote.path : `source/_posts/${Date.now()}-${title}.md`;
-
+    // const path = editingNote ? editingNote.path : `source/_posts/${Date.now()}-${title}.md`;
+    
+    // 使用用户指定的文件路径
+    // 注意：如果是重命名（修改了路径），sha 应该为 null（视为新文件），或者后端支持移动操作
+    // 这里简化处理：如果路径变了，就视为创建新文件。旧文件依然存在（除非后端有处理逻辑）。
+    // 真正的重命名需要 delete old + create new
+    
+    const isRename = editingNote && (editingNote.path !== filepath);
+    const finalSha = isRename ? null : sha; 
+    
     const payload = {
-        path: path,
+        path: filepath,
         message: sha ? `Update ${title}` : `Create ${title}`,
         content: newFileContent, // 直接发送内容，后端处理 Base64
-        sha: sha
+        sha: finalSha
     };
 
     // 决定调用哪个后端 API (本地代理)
