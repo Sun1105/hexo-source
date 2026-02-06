@@ -1,6 +1,6 @@
 ---
-title: Azure + Linux + OpenShift + Argo + 完整IT项目技术地图
-date: 2026-02-06T08:50:42.075Z
+title: Azure-Linux-OpenShift-Argo-完整IT项目技术地图
+date: 2026-02-06T13:55:22.980Z
 categories: [全栈技术清单]
 tags: [全栈技术清单]
 ---
