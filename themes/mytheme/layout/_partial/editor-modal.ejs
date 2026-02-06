@@ -337,7 +337,9 @@
     // Vercel 会将 api/ 目录下的文件部署为 Serverless Functions。
     // 假设路径是 /api/new-note 和 /api/edit-note
 
-    const apiUrl = sha ? '/api/edit-note' : '/api/new-note';
+    // 修复：如果是重命名（isRename=true）或者新建文件（!editingNote），finalSha 为 null
+    // 此时应该调用 /api/new-note，而不是 /api/edit-note
+    const apiUrl = finalSha ? '/api/edit-note' : '/api/new-note';
 
     saveNoteBtn.disabled = true;
     saveNoteBtn.innerText = "保存中...";
