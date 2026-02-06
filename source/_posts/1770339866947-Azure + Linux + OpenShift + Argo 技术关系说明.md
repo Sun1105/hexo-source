@@ -1,6 +1,6 @@
 ---
-title: Azure_Linux_OpenShift_Argo技术关系说明
-date: 2026-02-06T13:55:47.968Z
+title: 技术关系说明
+date: 2026-02-06T13:58:28.484Z
 categories: [全栈技术清单]
 tags: [全栈技术清单]
 ---
