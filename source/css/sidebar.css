@@ -29,7 +29,7 @@
 }
 
 /* ================================
-   标题部分 - 更加显眼
+   标题部分 - 更加显眼 (适配 summary)
 ================================ */
 .sidebar-title {
   display: flex;
@@ -43,6 +43,28 @@
   border-left: 4px solid var(--color-primary);
   border-radius: 0 8px 8px 0;
   box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+  cursor: pointer; /* 增加手型光标 */
+  list-style: none; /* 移除默认箭头 */
+  outline: none;
+}
+
+/* 移除 summary 默认的小三角 (Chrome/Safari) */
+.sidebar-title::-webkit-details-marker {
+  display: none;
+}
+
+/* 自定义箭头 */
+.sidebar-title::after {
+  content: '▼';
+  font-size: 0.8em;
+  margin-left: auto;
+  transition: transform 0.2s ease;
+  color: var(--color-text-secondary);
+}
+
+/* 展开时箭头旋转 */
+details[open] .sidebar-title::after {
+  transform: rotate(180deg);
 }
 
 /* ================================
@@ -55,6 +77,53 @@
   display: flex;
   flex-direction: column;
   gap: 6px; /* 列表项之间的间距 */
+  /* 增加展开动画需要配合 max-height，这里简化处理，直接显示 */
+}
+
+/* ================================
+   标签云特定样式 - 流式平铺 (Badge 风格)
+================================ */
+.sidebar ul.tag-list {
+  flex-direction: row; /* 水平排列 */
+  flex-wrap: wrap;     /* 允许换行 */
+  gap: 8px;            /* 间距 */
+}
+
+.sidebar ul.tag-list li {
+  width: auto;         /* 宽度自适应 */
+  margin: 0;
+}
+
+.sidebar ul.tag-list a {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;   /* 缩小内边距 */
+  font-size: 0.85rem;  /* 稍微缩小字体 */
+  border-radius: 20px; /* 胶囊/药丸形状 */
+  background: #ffffff;
+  border: 1px solid rgba(0,0,0,0.08);
+}
+
+/* 标签云中的计数样式微调 */
+.sidebar ul.tag-list .sidebar-count {
+  margin-left: 6px;
+  background: rgba(0,0,0,0.05);
+  font-size: 0.75em;
+  padding: 1px 6px;
+  min-width: auto;
+}
+
+/* 标签悬停效果增强 */
+.sidebar ul.tag-list a:hover {
+  transform: translateY(-2px) scale(1.02);
+  background: var(--color-primary);
+  color: #fff;
+  border-color: var(--color-primary);
+}
+
+.sidebar ul.tag-list a:hover .sidebar-count {
+  background: rgba(255,255,255,0.3);
+  color: #fff;
 }
 
 .sidebar li {
