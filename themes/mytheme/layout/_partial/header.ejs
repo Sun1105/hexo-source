@@ -16,6 +16,23 @@
     <!-- 点击跳转到网站首页 -->
   </div>
 
+  <!-- 搜索栏（左侧显示） -->
+  <div class="search-bar" style="margin-right: auto; margin-left: 20px; position: relative;">
+    <input type="text" id="local-search-input" placeholder="搜索标题 / 内容 / 关键词..." autocomplete="off" />
+    <button id="search-btn">搜索</button>
+  </div>
+
+  <!-- 搜索结果抽屉（右侧滑出） -->
+  <div id="search-drawer" class="search-drawer">
+    <div class="drawer-header">
+      <h3>搜索结果 <span id="search-count" style="font-size:0.8rem; color:#666; font-weight:normal;"></span></h3>
+      <button id="close-drawer" aria-label="关闭">×</button>
+    </div>
+    <div id="drawer-content" class="drawer-content">
+      <div class="empty-state">请输入关键词进行搜索</div>
+    </div>
+  </div>
+
   <!-- 汉堡按钮（小屏幕时显示） -->
   <button class="menu-toggle" onclick="toggleMenu()" aria-label="切换菜单">☰</button>
   <!-- onclick 调用 toggleMenu() 切换移动端菜单显示状态 -->
@@ -47,9 +64,6 @@
           <!-- 遍历技术分类数组，生成菜单项 -->
           <!-- 跳转到 /categories/分类名/ 页面 -->
           <a href="<%= url_for('/categories/' + m + '/') %>"><%= m %></a>
-
-          <!-- 如果希望点击动态更新侧边栏而不是跳转，可改为：
-          <a href="javascript:void(0)" onclick="selectMenu('<%= m %>')"><%= m %></a> -->
           
         <% }) %>
       </div>
@@ -65,3 +79,165 @@
 
 </header>
 <!-- 顶部导航栏结束 -->
+
+<script>
+  // 全站搜索功能
+  const searchInput = document.getElementById('local-search-input');
+  const searchBtn = document.getElementById('search-btn');
+  const searchDrawer = document.getElementById('search-drawer');
+  const drawerContent = document.getElementById('drawer-content');
+  const closeDrawerBtn = document.getElementById('close-drawer');
+  const searchCount = document.getElementById('search-count');
+
+  let searchData = [];
+
+  // 加载搜索数据
+  async function loadSearchData() {
+    if (searchData.length > 0) return;
+    try {
+      const response = await fetch('/search.xml');
+      const str = await response.text();
+      const parser = new DOMParser();
+      const xml = parser.parseFromString(str, "text/xml");
+      const entries = xml.querySelectorAll('entry');
+      
+      searchData = Array.from(entries).map(entry => {
+        return {
+          title: entry.querySelector('title')?.textContent || '',
+          content: entry.querySelector('content')?.textContent || '',
+          url: entry.querySelector('url')?.textContent || '',
+          categories: Array.from(entry.querySelectorAll('category')).map(c => c.textContent.trim()),
+          tags: Array.from(entry.querySelectorAll('tag')).map(t => t.textContent.trim())
+        };
+      });
+    } catch (e) {
+      console.error('Search data load failed:', e);
+      drawerContent.innerHTML = '<div class="error-state">搜索数据加载失败，请刷新重试</div>';
+    }
+  }
+
+  // 打开抽屉
+  function openDrawer() {
+    searchDrawer.classList.add('open');
+  }
+
+  // 关闭抽屉
+  function closeDrawer() {
+    searchDrawer.classList.remove('open');
+  }
+
+  // 执行搜索
+  async function performSearch() {
+    const term = searchInput.value.trim().toLowerCase();
+    
+    // 即使为空也打开抽屉，显示提示
+    openDrawer();
+
+    if (!term) {
+      drawerContent.innerHTML = '<div class="empty-state">请输入关键词开始搜索...</div>';
+      searchCount.textContent = '';
+      return;
+    }
+    
+    drawerContent.innerHTML = '<div class="loading-state">正在搜索...</div>';
+
+    // 确保数据已加载
+    if (searchData.length === 0) {
+      await loadSearchData();
+    }
+    
+    const keywords = term.split(/[\s\-]+/);
+    
+    const matched = searchData.filter(item => {
+      const title = item.title.toLowerCase();
+      const content = item.content.toLowerCase();
+      const meta = (item.categories.join(' ') + ' ' + item.tags.join(' ')).toLowerCase();
+      
+      return keywords.some(k => title.includes(k) || content.includes(k) || meta.includes(k));
+    });
+    
+    searchCount.textContent = `(共 ${matched.length} 条)`;
+
+    if (matched.length > 0) {
+      const html = matched.map(item => {
+        // 高亮关键词逻辑
+        let displayTitle = item.title;
+        let displayContent = item.content.replace(/<[^>]+>/g, "");
+        
+        // 简单截取预览
+        const snippetLength = 100;
+        // 尝试找到第一个关键词的位置
+        let firstIndex = -1;
+        for (const k of keywords) {
+          const idx = displayContent.toLowerCase().indexOf(k);
+          if (idx !== -1) {
+            firstIndex = idx;
+            break;
+          }
+        }
+        
+        let start = 0;
+        if (firstIndex > 20) {
+          start = firstIndex - 20;
+        }
+        
+        let snippet = displayContent.substring(start, start + snippetLength);
+        if (start > 0) snippet = '...' + snippet;
+        if (start + snippetLength < displayContent.length) snippet = snippet + '...';
+
+        // 简单的关键词高亮（不区分大小写替换）
+        keywords.forEach(k => {
+          if(!k) return;
+          const reg = new RegExp(`(${k})`, 'gi');
+          displayTitle = displayTitle.replace(reg, '<mark>$1</mark>');
+          snippet = snippet.replace(reg, '<mark>$1</mark>');
+        });
+
+        return `
+          <a href="${item.url}" class="search-item">
+            <div class="search-item-title">${displayTitle}</div>
+            <div class="search-item-content">${snippet}</div>
+            <div class="search-item-meta">
+              ${item.categories.length ? `<span class="tag category">${item.categories[0]}</span>` : ''}
+              ${item.tags.map(t => `<span class="tag">#${t}</span>`).join(' ')}
+            </div>
+          </a>
+        `;
+      }).join('');
+      drawerContent.innerHTML = html;
+    } else {
+      drawerContent.innerHTML = '<div class="empty-state">没有找到相关内容</div>';
+    }
+  }
+
+  // 按钮点击触发搜索
+  if (searchBtn) {
+    searchBtn.addEventListener('click', function() {
+      performSearch();
+    });
+  }
+
+  // 回车触发搜索
+  searchInput.addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+      performSearch();
+    }
+  });
+
+  // 关闭按钮事件
+  if (closeDrawerBtn) {
+    closeDrawerBtn.addEventListener('click', closeDrawer);
+  }
+
+  // 点击遮罩层关闭（如果在抽屉外点击）
+  // 这里我们做一个简单的处理：如果点击了主内容区域，也可以关闭
+  document.addEventListener('click', function(e) {
+    // 如果抽屉打开，且点击的不是抽屉本身，也不是搜索框/按钮
+    if (searchDrawer.classList.contains('open') && 
+        !searchDrawer.contains(e.target) && 
+        !searchInput.contains(e.target) && 
+        e.target !== searchBtn) {
+      closeDrawer();
+    }
+  });
+</script>
