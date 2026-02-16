@@ -84,10 +84,23 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-      const listEl = document.getElementById('pdf-list');
       const uploadInput = document.getElementById('pdf-upload-input');
       const uploadBtn = document.getElementById('pdf-upload-btn');
       const typeSelect = document.getElementById('file-type-select');
+      const categorySelect = document.getElementById('category-select');
+
+      const CATEGORY_CONFIG = [
+        { key: 'bcs', label: '标初上' },
+        { key: 'bcx', label: '标初下' },
+        { key: 'bzs', label: '标中上' },
+        { key: 'bzx', label: '标中下' },
+        { key: 'bgs', label: '标高上' },
+        { key: 'bgx', label: '标高下' }
+      ];
+
+      function getListEl(key) {
+        return document.getElementById('study-' + key);
+      }
 
       function updateAccept() {
         if (!uploadInput || !typeSelect) return;
@@ -99,75 +112,65 @@
       }
 
       async function loadResources() {
-        if (!listEl) return;
-        listEl.innerHTML = '<li>加载中...</li>';
+        for (const cat of CATEGORY_CONFIG) {
+          const listEl = getListEl(cat.key);
+          if (!listEl) continue;
+          listEl.innerHTML = '<li>加载中...</li>';
 
-        try {
-          const [pdfRes, imgRes] = await Promise.all([
-            fetch('https://api.github.com/repos/Sun1105/hexo-source/contents/source/pdfs'),
-            fetch('https://api.github.com/repos/Sun1105/hexo-source/contents/source/images')
-          ]);
+          try {
+            const res = await fetch(
+              'https://api.github.com/repos/Sun1105/hexo-source/contents/source/study/' + cat.key
+            );
 
-          const pdfData = pdfRes.ok ? await pdfRes.json() : [];
-          const imgData = imgRes.ok ? await imgRes.json() : [];
+            if (!res.ok) {
+              listEl.innerHTML = '<li>暂无文件</li>';
+              continue;
+            }
 
-          const pdfFiles = Array.isArray(pdfData)
-            ? pdfData.filter(item => item.name && item.name.toLowerCase().endsWith('.pdf'))
-            : [];
+            const data = await res.json();
+            const files = Array.isArray(data)
+              ? data.filter(item => item.name && /\.(pdf|png|jpe?g|gif|webp|svg)$/i.test(item.name))
+              : [];
 
-          const imgFiles = Array.isArray(imgData)
-            ? imgData.filter(item => item.name && /\.(png|jpe?g|gif|webp|svg)$/i.test(item.name))
-            : [];
+            if (!files.length) {
+              listEl.innerHTML = '<li>暂无文件</li>';
+              continue;
+            }
 
-          if (!pdfFiles.length && !imgFiles.length) {
-            listEl.innerHTML = '<li>暂无学习资料</li>';
-            return;
-          }
-
-          const parts = [];
-
-          if (pdfFiles.length) {
-            parts.push('<li><strong>PDF 文件</strong></li>');
-            pdfFiles.forEach(file => {
-              const publicPath = '/' + file.path.replace(/^source\//, '');
-              parts.push(
+            const parts = files.map(file => {
+              const href = file.download_url || file.html_url || '/' + file.path.replace(/^source\//, '');
+              return (
                 '<li>' +
-                  '<a href="' + publicPath + '" target="_blank">' +
+                  '<a href="' + href + '" target="_blank">' +
                     '<span class="sidebar-name">' + file.name + '</span>' +
                   '</a>' +
                 '</li>'
               );
             });
-          }
 
-          if (imgFiles.length) {
-            parts.push('<li><strong>图片文件</strong></li>');
-            imgFiles.forEach(file => {
-              const publicPath = '/' + file.path.replace(/^source\//, '');
-              parts.push(
-                '<li>' +
-                  '<a href="' + publicPath + '" target="_blank">' +
-                    '<span class="sidebar-name">' + file.name + '</span>' +
-                  '</a>' +
-                '</li>'
-              );
-            });
+            listEl.innerHTML = parts.join('');
+          } catch (e) {
+            listEl.innerHTML = '<li>加载失败</li>';
           }
-
-          listEl.innerHTML = parts.join('');
-        } catch (e) {
-          listEl.innerHTML = '<li>加载失败</li>';
         }
       }
 
-      if (listEl) {
-        loadResources();
-      }
+      loadResources();
 
       if (typeSelect) {
         typeSelect.addEventListener('change', updateAccept);
         updateAccept();
       }
+
+      const groupTitles = document.querySelectorAll('.study-group-title');
+      groupTitles.forEach(title => {
+        const group = title.parentElement;
+        const list = group.querySelector('ul');
+        if (!list) return;
+        title.addEventListener('click', () => {
+          group.classList.toggle('collapsed');
+        });
+      });
 
       if (uploadBtn && uploadInput) {
         uploadBtn.addEventListener('click', () => {
@@ -178,6 +181,7 @@
 
           const file = uploadInput.files[0];
           const type = typeSelect ? typeSelect.value : 'pdf';
+          const category = categorySelect ? categorySelect.value : 'bcs';
 
           if (type === 'pdf') {
             if (!file.name.toLowerCase().endsWith('.pdf')) {
@@ -213,7 +217,8 @@
                 body: JSON.stringify({
                   filename: file.name,
                   content: base64,
-                  type
+                  type,
+                  category
                 })
               });
 

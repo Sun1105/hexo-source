@@ -4,7 +4,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { filename, content, type } = req.body;
+    const { filename, content, type, category } = req.body;
 
     if (!filename || !content) {
       return res.status(400).json({ error: '缺少文件名或内容' });
@@ -18,8 +18,8 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: '服务器未配置 GitHub Token' });
     }
 
-    const category = type === 'image' ? 'images' : 'pdfs';
-    const path = `source/${category}/${filename}`;
+    const safeCategory = category && /^[a-z0-9_-]+$/i.test(category) ? category : 'default';
+    const path = `source/study/${safeCategory}/${filename}`;
 
     const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, {
       method: 'PUT',
