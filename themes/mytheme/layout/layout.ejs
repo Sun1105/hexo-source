@@ -67,27 +67,177 @@
 
   <!-- ===== 全局脚本区域 ===== -->
   <script>
-    // ===== 退出登录函数 =====
     function logout() {
       localStorage.removeItem("isLoggedIn");
       window.location.href = "/login/";
-      // 清除登录标记并跳转登录页
     }
 
-    // ===== 平滑滚动至顶部 =====
     function scrollToTop() {
       window.scrollTo({ top: 0, behavior: "smooth" });
-      // 平滑滚动到页面顶部
     }
 
-    // ===== 切换小屏幕菜单展开/收起 =====
     function toggleMenu() {
       const menu = document.querySelector('header.top-nav .menu');
       if (menu) {
         menu.classList.toggle('show');
-        // 切换菜单显示状态，便于移动端操作
       }
     }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const listEl = document.getElementById('pdf-list');
+      const uploadInput = document.getElementById('pdf-upload-input');
+      const uploadBtn = document.getElementById('pdf-upload-btn');
+      const typeSelect = document.getElementById('file-type-select');
+
+      function updateAccept() {
+        if (!uploadInput || !typeSelect) return;
+        if (typeSelect.value === 'image') {
+          uploadInput.accept = 'image/*';
+        } else {
+          uploadInput.accept = 'application/pdf';
+        }
+      }
+
+      async function loadResources() {
+        if (!listEl) return;
+        listEl.innerHTML = '<li>加载中...</li>';
+
+        try {
+          const [pdfRes, imgRes] = await Promise.all([
+            fetch('https://api.github.com/repos/Sun1105/hexo-source/contents/source/pdfs'),
+            fetch('https://api.github.com/repos/Sun1105/hexo-source/contents/source/images')
+          ]);
+
+          const pdfData = pdfRes.ok ? await pdfRes.json() : [];
+          const imgData = imgRes.ok ? await imgRes.json() : [];
+
+          const pdfFiles = Array.isArray(pdfData)
+            ? pdfData.filter(item => item.name && item.name.toLowerCase().endsWith('.pdf'))
+            : [];
+
+          const imgFiles = Array.isArray(imgData)
+            ? imgData.filter(item => item.name && /\.(png|jpe?g|gif|webp|svg)$/i.test(item.name))
+            : [];
+
+          if (!pdfFiles.length && !imgFiles.length) {
+            listEl.innerHTML = '<li>暂无学习资料</li>';
+            return;
+          }
+
+          const parts = [];
+
+          if (pdfFiles.length) {
+            parts.push('<li><strong>PDF 文件</strong></li>');
+            pdfFiles.forEach(file => {
+              const publicPath = '/' + file.path.replace(/^source\//, '');
+              parts.push(
+                '<li>' +
+                  '<a href="' + publicPath + '" target="_blank">' +
+                    '<span class="sidebar-name">' + file.name + '</span>' +
+                  '</a>' +
+                '</li>'
+              );
+            });
+          }
+
+          if (imgFiles.length) {
+            parts.push('<li><strong>图片文件</strong></li>');
+            imgFiles.forEach(file => {
+              const publicPath = '/' + file.path.replace(/^source\//, '');
+              parts.push(
+                '<li>' +
+                  '<a href="' + publicPath + '" target="_blank">' +
+                    '<span class="sidebar-name">' + file.name + '</span>' +
+                  '</a>' +
+                '</li>'
+              );
+            });
+          }
+
+          listEl.innerHTML = parts.join('');
+        } catch (e) {
+          listEl.innerHTML = '<li>加载失败</li>';
+        }
+      }
+
+      if (listEl) {
+        loadResources();
+      }
+
+      if (typeSelect) {
+        typeSelect.addEventListener('change', updateAccept);
+        updateAccept();
+      }
+
+      if (uploadBtn && uploadInput) {
+        uploadBtn.addEventListener('click', () => {
+          if (!uploadInput.files || !uploadInput.files.length) {
+            alert('请选择要上传的文件');
+            return;
+          }
+
+          const file = uploadInput.files[0];
+          const type = typeSelect ? typeSelect.value : 'pdf';
+
+          if (type === 'pdf') {
+            if (!file.name.toLowerCase().endsWith('.pdf')) {
+              alert('请选择 PDF 文件');
+              return;
+            }
+          } else if (type === 'image') {
+            if (!file.type.startsWith('image/')) {
+              alert('请选择图片文件');
+              return;
+            }
+          }
+
+          const reader = new FileReader();
+          reader.onload = async event => {
+            const arrayBuffer = event.target.result;
+            const bytes = new Uint8Array(arrayBuffer);
+            let binary = '';
+            for (let i = 0; i < bytes.byteLength; i++) {
+              binary += String.fromCharCode(bytes[i]);
+            }
+            const base64 = btoa(binary);
+
+            uploadBtn.disabled = true;
+            uploadBtn.textContent = '上传中...';
+
+            try {
+              const res = await fetch('/api/upload-pdf', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                  filename: file.name,
+                  content: base64,
+                  type
+                })
+              });
+
+              const data = await res.json();
+
+              if (res.ok) {
+                alert('上传成功');
+                uploadInput.value = '';
+                loadResources();
+              } else {
+                alert('上传失败: ' + (data.error || JSON.stringify(data)));
+              }
+            } catch (err) {
+              alert('请求失败: ' + err.message);
+            } finally {
+              uploadBtn.disabled = false;
+              uploadBtn.textContent = '上传文件';
+            }
+          };
+
+          reader.readAsArrayBuffer(file);
+        });
+      }
+    });
   </script>
 
   <!-- ===== 可选的“返回顶部”按钮 ===== -->
