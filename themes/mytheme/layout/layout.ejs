@@ -107,6 +107,22 @@
     </section>
   </main>
 
+  <div id="study-viewer" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,0.85);z-index:2000;align-items:center;justify-content:center;">
+    <div style="position:relative;max-width:90vw;max-height:90vh;background:#0f172a;padding:12px;border-radius:10px;box-shadow:0 20px 60px rgba(0,0,0,0.5);display:flex;flex-direction:column;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;color:#e5e7eb;font-size:0.9rem;">
+        <span id="study-viewer-title" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:70vw;"></span>
+        <button id="study-viewer-close" style="border:none;background:transparent;color:#e5e7eb;font-size:1.3rem;cursor:pointer;line-height:1;">×</button>
+      </div>
+      <div style="flex:1;display:flex;align-items:center;justify-content:center;">
+        <img id="study-viewer-img" src="" alt="" style="max-width:100%;max-height:70vh;border-radius:4px;background:#020617;" />
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-top:10px;">
+        <button id="study-viewer-prev" style="min-width:80px;padding:6px 12px;border-radius:6px;border:none;background:#1e293b;color:#e5e7eb;cursor:pointer;font-size:0.9rem;">上一张</button>
+        <button id="study-viewer-next" style="min-width:80px;padding:6px 12px;border-radius:6px;border:none;background:#1e293b;color:#e5e7eb;cursor:pointer;font-size:0.9rem;">下一张</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ===== 全局脚本区域 ===== -->
   <script>
     function logout() {
@@ -133,6 +149,16 @@
       const studyPanel = document.getElementById('study-main-panel');
       const studyMainBtn = document.getElementById('study-main-btn');
       const sidebarStudyTitle = document.getElementById('sidebar-study-title');
+      const viewer = document.getElementById('study-viewer');
+      const viewerImg = document.getElementById('study-viewer-img');
+      const viewerTitle = document.getElementById('study-viewer-title');
+      const viewerPrev = document.getElementById('study-viewer-prev');
+      const viewerNext = document.getElementById('study-viewer-next');
+      const viewerClose = document.getElementById('study-viewer-close');
+
+      const studyFilesMap = {};
+      let currentCategory = null;
+      let currentIndex = 0;
 
       const CATEGORY_CONFIG = [
         { key: 'bcs', label: '标初上' },
@@ -184,28 +210,37 @@
             const data = await res.json();
             const files = Array.isArray(data.files) ? data.files : [];
 
+            studyFilesMap[cat.key] = files;
+
             if (!files.length) {
               if (sideList) sideList.innerHTML = '<li>暂无文件</li>';
               if (mainList) mainList.innerHTML = '<li>暂无文件</li>';
               continue;
             }
 
-            const parts = files.map(file => {
+            const parts = files.map((file, index) => {
               const href =
                 file.download_url ||
                 file.html_url ||
                 (file.path ? '/' + file.path.replace(/^source\//, '') : '#');
               return (
                 '<li>' +
-                  '<a href="' + href + '" target="_blank">' +
+                  '<a href="' + href + '" target="_blank" class="study-file-link" data-category="' +
+                  cat.key + '" data-index="' + index + '">' +
                     '<span class="sidebar-name">' + file.name + '</span>' +
                   '</a>' +
                 '</li>'
               );
             });
 
-            if (sideList) sideList.innerHTML = parts.join('');
-            if (mainList) mainList.innerHTML = parts.join('');
+            if (sideList) {
+              sideList.innerHTML = parts.join('');
+              bindStudyLinks(sideList);
+            }
+            if (mainList) {
+              mainList.innerHTML = parts.join('');
+              bindStudyLinks(mainList);
+            }
           } catch (e) {
             if (sideList) sideList.innerHTML = '<li>加载失败</li>';
             if (mainList) mainList.innerHTML = '<li>加载失败</li>';
@@ -218,6 +253,66 @@
       if (typeSelect) {
         typeSelect.addEventListener('change', updateAccept);
         updateAccept();
+      }
+
+      function openViewer(category, index) {
+        const list = studyFilesMap[category] || [];
+        if (!list.length) return;
+
+        if (index < 0) index = 0;
+        if (index >= list.length) index = list.length - 1;
+
+        const file = list[index];
+        const href =
+          file.download_url ||
+          file.html_url ||
+          (file.path ? '/' + file.path.replace(/^source\//, '') : '#');
+
+        currentCategory = category;
+        currentIndex = index;
+
+        if (viewerImg) {
+          viewerImg.src = href;
+        }
+        if (viewerTitle) {
+          viewerTitle.textContent = file.name || '';
+        }
+        if (viewer) {
+          viewer.style.display = 'flex';
+        }
+
+        if (viewerPrev) {
+          viewerPrev.disabled = index <= 0;
+        }
+        if (viewerNext) {
+          viewerNext.disabled = index >= list.length - 1;
+        }
+      }
+
+      function closeViewer() {
+        if (viewer) {
+          viewer.style.display = 'none';
+        }
+      }
+
+      function showOffset(delta) {
+        if (!currentCategory) return;
+        openViewer(currentCategory, currentIndex + delta);
+      }
+
+      function onStudyLinkClick(event) {
+        if (!viewer || !viewerImg) return;
+        event.preventDefault();
+        const category = this.getAttribute('data-category');
+        const index = parseInt(this.getAttribute('data-index'), 10) || 0;
+        openViewer(category, index);
+      }
+
+      function bindStudyLinks(container) {
+        const links = container.querySelectorAll('a.study-file-link');
+        links.forEach(link => {
+          link.addEventListener('click', onStudyLinkClick);
+        });
       }
 
       function showStudyPanel() {
@@ -361,6 +456,43 @@
           uploadAt(0);
         });
       }
+
+      if (viewerClose) {
+        viewerClose.addEventListener('click', () => {
+          closeViewer();
+        });
+      }
+
+      if (viewerPrev) {
+        viewerPrev.addEventListener('click', () => {
+          showOffset(-1);
+        });
+      }
+
+      if (viewerNext) {
+        viewerNext.addEventListener('click', () => {
+          showOffset(1);
+        });
+      }
+
+      if (viewer) {
+        viewer.addEventListener('click', event => {
+          if (event.target === viewer) {
+            closeViewer();
+          }
+        });
+      }
+
+      document.addEventListener('keydown', event => {
+        if (!viewer || viewer.style.display === 'none') return;
+        if (event.key === 'Escape') {
+          closeViewer();
+        } else if (event.key === 'ArrowLeft') {
+          showOffset(-1);
+        } else if (event.key === 'ArrowRight') {
+          showOffset(1);
+        }
+      });
     });
   </script>
 
