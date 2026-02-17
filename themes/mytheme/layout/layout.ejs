@@ -67,37 +67,37 @@
     <section id="study-main-panel" style="display:none; margin-top:24px;">
       <h2 style="font-size:1.2rem; margin-bottom:12px;">📚 学习资料列表</h2>
       <div id="study-main-groups">
-        <div class="study-group">
+        <div class="study-group collapsed">
           <div class="study-group-title">标初上</div>
           <ul id="study-main-bcs">
             <li>暂无文件</li>
           </ul>
         </div>
-        <div class="study-group">
+        <div class="study-group collapsed">
           <div class="study-group-title">标初下</div>
           <ul id="study-main-bcx">
             <li>暂无文件</li>
           </ul>
         </div>
-        <div class="study-group">
+        <div class="study-group collapsed">
           <div class="study-group-title">标中上</div>
           <ul id="study-main-bzs">
             <li>暂无文件</li>
           </ul>
         </div>
-        <div class="study-group">
+        <div class="study-group collapsed">
           <div class="study-group-title">标中下</div>
           <ul id="study-main-bzx">
             <li>暂无文件</li>
           </ul>
         </div>
-        <div class="study-group">
+        <div class="study-group collapsed">
           <div class="study-group-title">标高上</div>
           <ul id="study-main-bgs">
             <li>暂无文件</li>
           </ul>
         </div>
-        <div class="study-group">
+        <div class="study-group collapsed">
           <div class="study-group-title">标高下</div>
           <ul id="study-main-bgx">
             <li>暂无文件</li>
@@ -268,67 +268,97 @@
             return;
           }
 
-          const file = uploadInput.files[0];
+          const files = Array.from(uploadInput.files);
           const type = typeSelect ? typeSelect.value : 'pdf';
           const category = categorySelect ? categorySelect.value : 'bcs';
 
-          if (type === 'pdf') {
-            if (!file.name.toLowerCase().endsWith('.pdf')) {
-              alert('请选择 PDF 文件');
-              return;
+          const invalid = files.some(file => {
+            if (type === 'pdf') {
+              return !file.name.toLowerCase().endsWith('.pdf');
             }
-          } else if (type === 'image') {
-            if (!file.type.startsWith('image/')) {
-              alert('请选择图片文件');
-              return;
+            if (type === 'image') {
+              return !file.type.startsWith('image/');
             }
+            return true;
+          });
+
+          if (invalid) {
+            if (type === 'pdf') {
+              alert('仅支持扩展名为 .pdf 的文件');
+            } else if (type === 'image') {
+              alert('仅支持图片文件');
+            } else {
+              alert('文件类型不支持');
+            }
+            return;
           }
 
-          const reader = new FileReader();
-          reader.onload = async event => {
-            const arrayBuffer = event.target.result;
-            const bytes = new Uint8Array(arrayBuffer);
-            let binary = '';
-            for (let i = 0; i < bytes.byteLength; i++) {
-              binary += String.fromCharCode(bytes[i]);
-            }
-            const base64 = btoa(binary);
+          uploadBtn.disabled = true;
+          uploadBtn.textContent = '上传中...';
 
-            uploadBtn.disabled = true;
-            uploadBtn.textContent = '上传中...';
+          let successCount = 0;
+          let failCount = 0;
 
-            try {
-              const res = await fetch('/api/upload-pdf', {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                  filename: file.name,
-                  content: base64,
-                  type,
-                  category
-                })
-              });
-
-              const data = await res.json();
-
-              if (res.ok) {
-                alert('上传成功');
-                uploadInput.value = '';
-                loadResources();
-              } else {
-                alert('上传失败: ' + (data.error || JSON.stringify(data)));
-              }
-            } catch (err) {
-              alert('请求失败: ' + err.message);
-            } finally {
+          function uploadAt(index) {
+            if (index >= files.length) {
+              const message = '上传完成：成功 ' + successCount + ' 个，失败 ' + failCount + ' 个';
+              alert(message);
+              uploadInput.value = '';
+              loadResources();
               uploadBtn.disabled = false;
               uploadBtn.textContent = '上传文件';
+              return;
             }
-          };
 
-          reader.readAsArrayBuffer(file);
+            const file = files[index];
+            const reader = new FileReader();
+
+            reader.onload = event => {
+              (async () => {
+                try {
+                  const arrayBuffer = event.target.result;
+                  const bytes = new Uint8Array(arrayBuffer);
+                  let binary = '';
+                  for (let i = 0; i < bytes.byteLength; i++) {
+                    binary += String.fromCharCode(bytes[i]);
+                  }
+                  const base64 = btoa(binary);
+
+                  const res = await fetch('/api/upload-pdf', {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                      filename: file.name,
+                      content: base64,
+                      type,
+                      category
+                    })
+                  });
+
+                  if (res.ok) {
+                    successCount += 1;
+                  } else {
+                    failCount += 1;
+                  }
+                } catch (e) {
+                  failCount += 1;
+                } finally {
+                  uploadAt(index + 1);
+                }
+              })();
+            };
+
+            reader.onerror = () => {
+              failCount += 1;
+              uploadAt(index + 1);
+            };
+
+            reader.readAsArrayBuffer(file);
+          }
+
+          uploadAt(0);
         });
       }
     });

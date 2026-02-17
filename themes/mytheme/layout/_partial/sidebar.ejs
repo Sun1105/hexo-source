@@ -8,7 +8,7 @@
   ============================ -->
 
   <!-- 分类导航 -->
-  <details class="sidebar-widget" open>
+  <details class="sidebar-widget">
     <summary class="sidebar-title">📘 分类导航</summary>
     <ul class="category-list">
       <% if (site.categories && site.categories.length) { %>
@@ -30,7 +30,7 @@
   <div class="sidebar-divider"></div>
 
   <!-- 标签云 -->
-  <details class="sidebar-widget" open>
+  <details class="sidebar-widget">
     <summary class="sidebar-title">🏷️ 标签云</summary>
     <ul class="tag-list">
       <% if (site.tags && site.tags.length) { %>
@@ -50,7 +50,7 @@
 
   <div class="sidebar-divider"></div>
 
-  <details class="sidebar-widget" open>
+  <details class="sidebar-widget">
     <summary class="sidebar-title" id="sidebar-study-title">📚 学习资料</summary>
     <ul class="study-list">
       <li>
@@ -73,41 +73,41 @@
         <button type="button" id="pdf-upload-btn" style="width: 100%; padding: 8px 12px; border-radius: 6px; border: none; background: #0f766e; color: #fff; cursor: pointer; font-size: 0.9rem;">上传文件</button>
       </li>
       <li>
-        <input type="file" id="pdf-upload-input" accept="application/pdf" style="width: 100%; margin-top: 8px; font-size: 0.85rem;">
+        <input type="file" id="pdf-upload-input" accept="application/pdf" multiple style="width: 100%; margin-top: 8px; font-size: 0.85rem;">
       </li>
     </ul>
     <div class="study-groups">
-      <div class="study-group">
+      <div class="study-group collapsed">
         <div class="study-group-title">标初上</div>
         <ul id="study-bcs">
           <li>暂无文件</li>
         </ul>
       </div>
-      <div class="study-group">
+      <div class="study-group collapsed">
         <div class="study-group-title">标初下</div>
         <ul id="study-bcx">
           <li>暂无文件</li>
         </ul>
       </div>
-      <div class="study-group">
+      <div class="study-group collapsed">
         <div class="study-group-title">标中上</div>
         <ul id="study-bzs">
           <li>暂无文件</li>
         </ul>
       </div>
-      <div class="study-group">
+      <div class="study-group collapsed">
         <div class="study-group-title">标中下</div>
         <ul id="study-bzx">
           <li>暂无文件</li>
         </ul>
       </div>
-      <div class="study-group">
+      <div class="study-group collapsed">
         <div class="study-group-title">标高上</div>
         <ul id="study-bgs">
           <li>暂无文件</li>
         </ul>
       </div>
-      <div class="study-group">
+      <div class="study-group collapsed">
         <div class="study-group-title">标高下</div>
         <ul id="study-bgx">
           <li>暂无文件</li>
