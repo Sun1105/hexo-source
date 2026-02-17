@@ -43,6 +43,7 @@
     <!-- 普通菜单项 -->
     <a href="/new-note/">新建笔记</a>
     <a href="/notes/">笔记列表</a>
+    <button type="button" id="study-main-btn" class="menu-btn">学习资料</button>
     <a href="/archives/">时间轴</a>
     <a href="/about/">关于我</a>
     <a href="/projects/">项目集</a>
@@ -55,17 +56,13 @@
       <!-- 下拉按钮，点击显示分类列表 -->
 
       <div class="dropdown-content">
-        <% 
-          // 定义技术分类数组
-          const menus = ['Java','SpringBoot','JUnit','Maven','Mybatis','Git','SQL','VBA','Azure','Docker','前端','架构分析','快捷键']; 
-        %>
-
-        <% menus.forEach(m => { %>
-          <!-- 遍历技术分类数组，生成菜单项 -->
-          <!-- 跳转到 /categories/分类名/ 页面 -->
-          <a href="<%= url_for('/categories/' + m + '/') %>"><%= m %></a>
-          
-        <% }) %>
+        <% if (site.categories && site.categories.length) { %>
+          <% site.categories.sort('name').forEach(function(cat){ %>
+            <a href="<%= url_for(cat.path) %>"><%= cat.name %></a>
+          <% }); %>
+        <% } else { %>
+          <span>暂无分类</span>
+        <% } %>
       </div>
     </div>
     <!-- 技术分类下拉菜单结束 -->
