@@ -223,9 +223,16 @@
 
       function showStudyPanel() {
         if (!studyPanel) return;
-        studyPanel.style.display = 'block';
         const main = document.getElementById('main-content');
         if (main) {
+          const children = Array.from(main.children);
+          children.forEach(child => {
+            if (child.id === 'study-main-panel') {
+              child.style.display = 'block';
+            } else {
+              child.style.display = 'none';
+            }
+          });
           main.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
       }
