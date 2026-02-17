@@ -186,6 +186,42 @@
         }
       }
 
+      function isLocalhost() {
+        return (
+          location.hostname === 'localhost' ||
+          location.hostname === '127.0.0.1' ||
+          location.hostname === ''
+        );
+      }
+
+      async function fetchStudyList(catKey) {
+        if (!isLocalhost()) {
+          try {
+            const apiRes = await fetch('/api/study-list?category=' + encodeURIComponent(catKey));
+            if (apiRes.ok) {
+              const apiData = await apiRes.json();
+              if (Array.isArray(apiData.files)) {
+                return apiData.files;
+              }
+            }
+          } catch (e) {
+          }
+        }
+
+        try {
+          const ghRes = await fetch(
+            'https://api.github.com/repos/Sun1105/hexo-source/contents/source/study/' + catKey
+          );
+          if (!ghRes.ok) {
+            return [];
+          }
+          const ghData = await ghRes.json();
+          return Array.isArray(ghData) ? ghData : [];
+        } catch (e) {
+          return [];
+        }
+      }
+
       async function loadResources() {
         for (const cat of CATEGORY_CONFIG) {
           const sideList = getListEl(cat.key);
@@ -198,52 +234,41 @@
             mainList.innerHTML = '<li>加载中...</li>';
           }
 
-          try {
-            const res = await fetch('/api/study-list?category=' + encodeURIComponent(cat.key));
+          const list = await fetchStudyList(cat.key);
+          const files = Array.isArray(list)
+            ? list.filter(file => file.name && /\.(pdf|png|jpe?g|gif|webp|svg)$/i.test(file.name))
+            : [];
 
-            if (!res.ok) {
-              if (sideList) sideList.innerHTML = '<li>暂无文件</li>';
-              if (mainList) mainList.innerHTML = '<li>暂无文件</li>';
-              continue;
-            }
+          studyFilesMap[cat.key] = files;
 
-            const data = await res.json();
-            const files = Array.isArray(data.files) ? data.files : [];
+          if (!files.length) {
+            if (sideList) sideList.innerHTML = '<li>暂无文件</li>';
+            if (mainList) mainList.innerHTML = '<li>暂无文件</li>';
+            continue;
+          }
 
-            studyFilesMap[cat.key] = files;
+          const parts = files.map((file, index) => {
+            const href =
+              file.download_url ||
+              file.html_url ||
+              (file.path ? '/' + file.path.replace(/^source\//, '') : '#');
+            return (
+              '<li>' +
+                '<a href="' + href + '" target="_blank" class="study-file-link" data-category="' +
+                cat.key + '" data-index="' + index + '">' +
+                  '<span class="sidebar-name">' + file.name + '</span>' +
+                '</a>' +
+              '</li>'
+            );
+          });
 
-            if (!files.length) {
-              if (sideList) sideList.innerHTML = '<li>暂无文件</li>';
-              if (mainList) mainList.innerHTML = '<li>暂无文件</li>';
-              continue;
-            }
-
-            const parts = files.map((file, index) => {
-              const href =
-                file.download_url ||
-                file.html_url ||
-                (file.path ? '/' + file.path.replace(/^source\//, '') : '#');
-              return (
-                '<li>' +
-                  '<a href="' + href + '" target="_blank" class="study-file-link" data-category="' +
-                  cat.key + '" data-index="' + index + '">' +
-                    '<span class="sidebar-name">' + file.name + '</span>' +
-                  '</a>' +
-                '</li>'
-              );
-            });
-
-            if (sideList) {
-              sideList.innerHTML = parts.join('');
-              bindStudyLinks(sideList);
-            }
-            if (mainList) {
-              mainList.innerHTML = parts.join('');
-              bindStudyLinks(mainList);
-            }
-          } catch (e) {
-            if (sideList) sideList.innerHTML = '<li>加载失败</li>';
-            if (mainList) mainList.innerHTML = '<li>加载失败</li>';
+          if (sideList) {
+            sideList.innerHTML = parts.join('');
+            bindStudyLinks(sideList);
+          }
+          if (mainList) {
+            mainList.innerHTML = parts.join('');
+            bindStudyLinks(mainList);
           }
         }
       }
