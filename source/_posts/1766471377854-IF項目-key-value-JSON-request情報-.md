@@ -1,8 +1,8 @@
 ---
 title: IF項目（key-value）➡ JSON（request情報）
-category: VBA
-tags: [TOOL]
-date: 2025-12-23T06:53:06.863Z
+date: 2026-02-19T12:05:56.868Z
+categories: [TOOL]
+tags: [VBA]
 ---
 
 '==================================================================================
