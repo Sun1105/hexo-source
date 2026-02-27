@@ -21,15 +21,35 @@ export default async function handler(req, res) {
     const safeCategory = category && /^[a-z0-9_-]+$/i.test(category) ? category : 'default';
     const path = `source/study/${safeCategory}/${filename}`;
 
+    // 1. 尝试获取现有文件的 sha（如果文件已存在）
+    let sha = null;
+    try {
+      const getRes = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, {
+        headers: {
+          'Authorization': `token ${token}`,
+          'User-Agent': 'Vercel-Serverless-Function'
+        }
+      });
+      if (getRes.ok) {
+        const existingData = await getRes.json();
+        sha = existingData.sha;
+      }
+    } catch (e) {
+      // 忽略错误，可能文件不存在
+    }
+
+    // 2. 上传或更新文件
     const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, {
       method: 'PUT',
       headers: {
         Authorization: `token ${token}`,
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'User-Agent': 'Vercel-Serverless-Function'
       },
       body: JSON.stringify({
-        message: `上传学习资料 ${filename}`,
-        content
+        message: `${sha ? '更新' : '上传'}学习资料 ${filename}`,
+        content,
+        sha // 如果是更新文件，必须提供 sha
       })
     });
 

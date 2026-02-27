@@ -430,13 +430,8 @@
             reader.onload = event => {
               (async () => {
                 try {
-                  const arrayBuffer = event.target.result;
-                  const bytes = new Uint8Array(arrayBuffer);
-                  let binary = '';
-                  for (let i = 0; i < bytes.byteLength; i++) {
-                    binary += String.fromCharCode(bytes[i]);
-                  }
-                  const base64 = btoa(binary);
+                  const dataUrl = event.target.result;
+                  const base64 = dataUrl.split(',')[1];
 
                   const res = await fetch('/api/upload-pdf', {
                     method: 'POST',
@@ -475,7 +470,7 @@
               uploadAt(index + 1);
             };
 
-            reader.readAsArrayBuffer(file);
+            reader.readAsDataURL(file);
           }
 
           uploadAt(0);

@@ -26,7 +26,8 @@ export default async function handler(req, res) {
       method: 'GET',
       headers: {
         Authorization: `token ${token}`,
-        Accept: 'application/vnd.github.v3+json'
+        Accept: 'application/vnd.github.v3+json',
+        'User-Agent': 'Vercel-Serverless-Function'
       }
     });
 

@@ -30,6 +30,7 @@ export default async function handler(req, res) {
       headers: {
         'Authorization': `token ${token}`,
         'Content-Type': 'application/json',
+        'User-Agent': 'Vercel-Serverless-Function'
       },
       body: JSON.stringify({
         message: message || `新建文章`,
