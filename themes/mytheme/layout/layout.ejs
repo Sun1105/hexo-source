@@ -388,6 +388,11 @@
 
           const invalid = files.some(file => {
             const name = file.name.toLowerCase();
+            // 限制文件大小为 4MB（Vercel 限制为 4.5MB）
+            if (file.size > 4 * 1024 * 1024) {
+              alert('文件 "' + file.name + '" 超过 4MB，请压缩后再上传');
+              return true;
+            }
             if (type === 'pdf') {
               return !name.endsWith('.pdf');
             }
@@ -450,13 +455,21 @@
                   if (res.ok) {
                     successCount += 1;
                   } else {
+                    failCount += 1;
+                    const status = res.status;
+                    let errorMsg = '未知错误';
                     try {
                       const errData = await res.json();
-                      if (errData && errData.error) {
-                        console.error('上传失败', file.name, errData.error);
+                      errorMsg = errData.error || JSON.stringify(errData);
+                    } catch (e2) {
+                      if (status === 413) {
+                        errorMsg = '文件太大 (Payload Too Large)';
+                      } else {
+                        errorMsg = '服务器错误 (' + status + ')';
                       }
-                    } catch (e2) {}
-                    failCount += 1;
+                    }
+                    console.error('上传失败:', file.name, errorMsg);
+                    alert('文件 "' + file.name + '" 上传失败: ' + errorMsg);
                   }
                 } catch (e) {
                   failCount += 1;

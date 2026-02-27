@@ -44,7 +44,8 @@ export default async function handler(req, res) {
     if(response.ok){
       res.status(200).json({ success: true, url: data.content.html_url });
     } else {
-      res.status(400).json({ error: data });
+      const errorDetail = data.message || JSON.stringify(data);
+      res.status(response.status).json({ error: `GitHub API 错误: ${errorDetail}` });
     }
 
   } catch(err){

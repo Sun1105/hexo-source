@@ -63,7 +63,8 @@ export default async function handler(req, res) {
       });
     }
 
-    return res.status(400).json({ error: data });
+    const errorDetail = data.message || JSON.stringify(data);
+    return res.status(response.status).json({ error: `GitHub API 错误: ${errorDetail}` });
   } catch (err) {
     return res.status(500).json({ error: err.message });
   }
