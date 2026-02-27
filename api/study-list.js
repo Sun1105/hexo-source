@@ -21,8 +21,9 @@ export default async function handler(req, res) {
     }
 
     const path = `source/study/${category}`;
+    const encodedPath = `source/study/${encodeURIComponent(category)}`;
 
-    const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, {
+    const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${encodedPath}`, {
       method: 'GET',
       headers: {
         Authorization: `token ${token}`,

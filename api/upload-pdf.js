@@ -20,11 +20,12 @@ export default async function handler(req, res) {
 
     const safeCategory = category && /^[a-z0-9_-]+$/i.test(category) ? category : 'default';
     const path = `source/study/${safeCategory}/${filename}`;
+    const encodedPath = `source/study/${encodeURIComponent(safeCategory)}/${encodeURIComponent(filename)}`;
 
     // 1. 尝试获取现有文件的 sha（如果文件已存在）
     let sha = null;
     try {
-      const getRes = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, {
+      const getRes = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${encodedPath}`, {
         headers: {
           'Authorization': `token ${token}`,
           'User-Agent': 'Vercel-Serverless-Function'
@@ -39,7 +40,7 @@ export default async function handler(req, res) {
     }
 
     // 2. 上传或更新文件
-    const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, {
+    const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${encodedPath}`, {
       method: 'PUT',
       headers: {
         Authorization: `token ${token}`,

@@ -25,7 +25,8 @@ export default async function handler(req, res) {
     const base64Content = Buffer.from(content).toString('base64');
 
     // 调用 GitHub API 创建新文件
-    const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, {
+    const encodedPath = path.split('/').map(part => encodeURIComponent(part)).join('/');
+    const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${encodedPath}`, {
       method: 'PUT',
       headers: {
         'Authorization': `token ${token}`,

@@ -387,11 +387,12 @@
           const category = categorySelect ? categorySelect.value : 'bcs';
 
           const invalid = files.some(file => {
+            const name = file.name.toLowerCase();
             if (type === 'pdf') {
-              return !file.name.toLowerCase().endsWith('.pdf');
+              return !name.endsWith('.pdf');
             }
             if (type === 'image') {
-              return !file.type.startsWith('image/');
+              return !/\.(png|jpe?g|gif|webp|svg)$/.test(name);
             }
             return true;
           });
