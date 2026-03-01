@@ -388,11 +388,6 @@
 
           const invalid = files.some(file => {
             const name = file.name.toLowerCase();
-            // 限制文件大小为 4MB（Vercel 限制为 4.5MB）
-            if (file.size > 4 * 1024 * 1024) {
-              alert('文件 "' + file.name + '" 超过 4MB，请压缩后再上传');
-              return true;
-            }
             if (type === 'pdf') {
               return !name.endsWith('.pdf');
             }
