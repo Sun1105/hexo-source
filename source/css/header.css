@@ -2,7 +2,7 @@
 header.top-nav {
   position: fixed;
   top: 0; left: 0;
-  width: 100%; height: 50px; /* 调整为更小的高度 */
+  width: 100%; height: var(--header-height);
   padding: 0 30px;
   display: flex; align-items: center; justify-content: space-between;
   background: var(--gradient-primary); /* 使用渐变背景 */
@@ -16,7 +16,7 @@ header.top-nav {
 }
 
 /* 让主内容下移，避免被固定头部遮挡（可按主题调整） */
-body { padding-top: 50px; }
+body { padding-top: var(--header-height); }
 
 /* Logo */
 header.top-nav .logo a {
@@ -120,10 +120,10 @@ header.top-nav .menu > a:hover {
 /* 搜索结果抽屉 */
 .search-drawer {
   position: fixed;
-  top: 50px; /* header height */
+  top: var(--header-height);
   right: -420px; /* 默认隐藏 */
   width: 420px;
-  height: calc(100vh - 50px);
+  height: calc(100vh - var(--header-height));
   background: #fff;
   box-shadow: -4px 0 16px rgba(0,0,0,0.1);
   z-index: 1050;
@@ -326,11 +326,12 @@ header.top-nav.scrolled {
 /* 汉堡按钮（默认隐藏） */
 .menu-toggle {
   display: none; background: none; border: none;
-  font-size: 1.6rem; color: var(--color-text); cursor: pointer;
+  font-size: 1.6rem; color: #fff; cursor: pointer;
 }
 
 /* 小屏幕适配 */
 @media (max-width: 768px) {
+  :root { --header-height: 56px; }
   header.top-nav { padding: 0 16px; height: 56px; }
   header.top-nav .logo a { font-size: 1.2rem; }
 
@@ -377,4 +378,9 @@ header.top-nav.scrolled {
      display: none; /* 小屏暂时隐藏搜索，或者需要调整到 menu 里 */
      /* 如果要显示在 header 里，可能会比较挤，建议在 menu 展开时显示 */
   }
+}
+
+@media (max-width: 480px) {
+  header.top-nav { padding: 0 12px; }
+  header.top-nav .menu { width: min(320px, 96vw); }
 }

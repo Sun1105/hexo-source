@@ -2,7 +2,7 @@
    主体区域
    ============ */
 main {
-  margin-left: 240px; /* 稍微增加侧边栏宽度预留 */
+  margin-left: var(--sidebar-width);
   padding: 24px 40px 60px;
   min-height: 100vh;
   background: var(--color-bg);
@@ -13,7 +13,34 @@ main {
 @media (max-width: 900px) {
   main {
     margin-left: 0;
-    padding: 80px 20px;
+    padding: 24px 16px 60px;
+  }
+}
+
+@media (max-width: 768px) {
+  .post {
+    padding: 20px 16px;
+    margin-bottom: 18px;
+  }
+
+  .post-header h1,
+  .post-header h2 {
+    font-size: 1.35rem;
+  }
+
+  .post-meta {
+    flex-wrap: wrap;
+  }
+
+  #editorModal > div {
+    width: calc(100% - 24px) !important;
+    margin: 12px auto !important;
+    padding: 14px !important;
+    max-height: calc(100vh - 24px) !important;
+  }
+
+  #preview iframe {
+    height: 50vh !important;
   }
 }
 
