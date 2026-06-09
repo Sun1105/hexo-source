@@ -7,89 +7,138 @@
     - 渲染文章正文内容
 -->
 
-<article class="post">
-  <!-- 单篇文章容器，用于文章详情页布局和样式 -->
+<% 
+  // 1. 预处理内容数据
+  let rawBody = "";
+  if (page.raw) {
+    const parts = page.raw.split(/^---$/m);
+    if (page.raw.trim().startsWith('---') && parts.length >= 3) {
+      rawBody = parts.slice(2).join('---');
+    } else {
+      rawBody = page.raw;
+    }
+  } else {
+    rawBody = page.content || "";
+  }
+  
+  const isFullHtml = !!(rawBody.trim().match(/^\s*<!DOCTYPE/i) || rawBody.trim().match(/^\s*<html/i));
+%>
 
+<article class="post">
   <!-- 文章标题 -->
   <h1 class="post-title"><%= page.title %></h1>
-  <!-- page.title → 当前文章标题 -->
 
-  <!-- 文章元信息：发布日期 + 标签 -->
+  <!-- 文章元信息 -->
   <div class="post-meta">
-    <span>发表于 <%= date(page.date, 'YYYY-MM-DD') %></span>
-    <!-- 显示文章发布日期 -->
-
-    <% if (page.tags && page.tags.length) { %>
-      <!-- 判断文章是否有标签 -->
-
-      <span>标签：
-        <% page.tags.forEach(function(tag, i){ %>
-          <a href="<%= url_for(tag.path) %>"><%= tag.name %></a>
-          <%= i < page.tags.length - 1 ? ', ' : '' %>
-          <!-- 遍历文章标签，生成标签链接 -->
-          <!-- 多个标签用逗号分隔 -->
-        <% }) %>
-      </span>
-
-    <% } %>
-    <!-- 标签判断结束 -->
+    <div class="meta-info">
+      <span>发表于 <%= date(page.date, 'YYYY-MM-DD') %></span>
+      <% if (page.tags && page.tags.length) { %>
+        <span> | 标签：
+          <% page.tags.forEach(function(tag, i){ %>
+            <a href="<%= url_for(tag.path) %>"><%= tag.name %></a><%= i < page.tags.length - 1 ? ', ' : '' %>
+          <% }) %>
+        </span>
+      <% } %>
+    </div>
+    <!-- 阅览按钮 -->
+    <button type="button" class="preview-trigger-btn">👁️ 阅览</button>
   </div>
-  <!-- 文章元信息结束 -->
 
   <!-- 文章正文内容 -->
   <div class="post-content">
-    <% 
-      let rawBody = "";
-      if (page.raw) {
-        // Attempt to extract raw content by stripping Front Matter
-        const parts = page.raw.split(/^---$/m);
-        if (page.raw.trim().startsWith('---') && parts.length >= 3) {
-          rawBody = parts.slice(2).join('---');
-        } else {
-          rawBody = page.raw;
-        }
-      } else {
-        // Fallback to rendered content if raw is unavailable
-        rawBody = page.content;
-      }
-      
-      const contentTrimmed = rawBody.trim();
-      // Check if content is a full HTML document
-      const isFullHtml = contentTrimmed.match(/^\s*<!DOCTYPE/i) || contentTrimmed.match(/^\s*<html/i);
-    %>
-
     <% if (isFullHtml) { %>
-      <!-- Full HTML content rendered in iframe -->
       <iframe id="post-content-iframe" style="width:100%; height:800px; border:1px solid #eee; background: #fff;"></iframe>
       <script>
         (function() {
-          const frame = document.getElementById('post-content-iframe');
-          // Use rawBody to preserve full HTML structure including DOCTYPE/HEAD
-          const rawContent = decodeURIComponent("<%- encodeURIComponent(rawBody) %>");
-          
-          const doc = frame.contentDocument || frame.contentWindow.document;
-          doc.open();
-          doc.write(rawContent);
-          doc.close();
-
-          // Auto resize height
-          frame.onload = function() {
-            try {
-              const height = frame.contentWindow.document.body.scrollHeight;
-              if (height > 0) {
-                 frame.style.height = (height + 50) + 'px';
-              }
-            } catch(e) { console.error("Auto resize failed", e); }
-          };
+          try {
+            const frame = document.getElementById('post-content-iframe');
+            const rawContent = decodeURIComponent("<%- encodeURIComponent(rawBody) %>");
+            const doc = frame.contentDocument || frame.contentWindow.document;
+            doc.open();
+            doc.write(rawContent);
+            doc.close();
+            frame.onload = function() {
+              try {
+                const height = frame.contentWindow.document.body.scrollHeight;
+                if (height > 0) frame.style.height = (height + 50) + 'px';
+              } catch(e) {}
+            };
+          } catch(e) { console.error("Iframe load error", e); }
         })();
       </script>
     <% } else { %>
       <%- page.content %>
-      <!-- 渲染文章正文 HTML -->
-      <!-- 使用 <%- %> 不转义 HTML，保证内容中的标签生效 -->
     <% } %>
   </div>
-  <!-- 文章正文结束 -->
-
 </article>
-<!-- 单篇文章容器结束 -->
+
+<!-- 阅览弹窗 HTML 结构 (已废弃，改为新窗口打开) -->
+<div id="custom-preview-overlay" style="display: none;"></div>
+
+<!-- 脚本逻辑 -->
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  const triggerBtn = document.querySelector('.preview-trigger-btn');
+  
+  if (!triggerBtn) return;
+
+  // 点击阅览按钮，在新窗口中打开纯净内容
+  triggerBtn.onclick = function() {
+    const previewWindow = window.open('', '_blank');
+    if (!previewWindow) {
+      alert("新窗口被浏览器拦截，请允许弹出窗口。");
+      return;
+    }
+
+    const title = "<%= page.title %>";
+    const isFullHtml = <%= !!isFullHtml %>;
+    let content = "";
+
+    <% if (isFullHtml) { %>
+      content = decodeURIComponent("<%- encodeURIComponent(rawBody) %>");
+    <% } else { %>
+      // 对于普通 Markdown，包裹在基本的 HTML 结构中
+      content = `
+        <!DOCTYPE html>
+        <html lang="zh-CN">
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>${title} - 预览</title>
+          <style>
+            body { 
+              font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+              line-height: 1.8;
+              color: #333;
+              max-width: 900px;
+              margin: 40px auto;
+              padding: 0 20px;
+              background: #fff;
+            }
+            h1 { color: #1976d2; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+            img { max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+            pre { background: #f8f9fa; padding: 15px; border-radius: 6px; overflow-x: auto; border-left: 4px solid #1976d2; }
+            code { font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace; }
+            blockquote { border-left: 4px solid #dfe2e5; color: #6a737d; margin: 0; padding-left: 16px; }
+            table { border-collapse: collapse; width: 100%; margin: 20px 0; }
+            th, td { border: 1px solid #dfe2e5; padding: 8px 12px; }
+            th { background: #f6f8fa; }
+          </style>
+        </head>
+        <body>
+          <h1>${title}</h1>
+          <div class="content">
+            ${decodeURIComponent("<%- encodeURIComponent(page.content) %>")}
+          </div>
+        </body>
+        </html>
+      `;
+    <% } %>
+
+    const doc = previewWindow.document;
+    doc.open();
+    doc.write(content);
+    doc.close();
+  };
+});
+</script>

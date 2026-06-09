@@ -101,4 +101,39 @@ hexo.extend.filter.register('server_middleware', function(app) {
 
     app.use('/api/edit-note', handleSave);
     app.use('/api/new-note', handleSave);
+
+    // 4. 路由：GET /api/list-posts?path=...
+    // 模拟 GitHub List Contents API
+    app.use('/api/list-posts', (req, res) => {
+        const url = new URL(req.url, `http://${req.headers.host}`);
+        let dirPath = url.searchParams.get('path') || 'source/_posts';
+        
+        dirPath = decodeURIComponent(dirPath);
+        const fullDir = path.join(hexo.base_dir, dirPath);
+
+        if (fs.existsSync(fullDir)) {
+            try {
+                const files = fs.readdirSync(fullDir);
+                const data = files.map(file => {
+                    const filePath = path.join(fullDir, file);
+                    const stats = fs.statSync(filePath);
+                    return {
+                        name: file,
+                        path: path.join(dirPath, file).replace(/\\/g, '/'),
+                        size: stats.size,
+                        type: stats.isDirectory() ? 'dir' : 'file',
+                        sha: 'local-' + stats.mtimeMs // 模拟 SHA，本地使用修改时间戳
+                    };
+                });
+                res.setHeader('Content-Type', 'application/json');
+                res.end(JSON.stringify(data));
+            } catch (e) {
+                res.statusCode = 500;
+                res.end(JSON.stringify({ error: e.message }));
+            }
+        } else {
+            res.statusCode = 404;
+            res.end(JSON.stringify({ error: 'Directory not found: ' + dirPath }));
+        }
+    });
 });

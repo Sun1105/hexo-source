@@ -19,19 +19,11 @@
     <label for="category">分类：</label>
     <select id="category" name="category" required>
       <option value="">请选择分类</option>
-      <option>Java</option>
-      <option>SpringBoot</option>
-      <option>JUnit</option>
-      <option>Maven</option>
-      <option>Mybatis</option>
-      <option>Git</option>
-      <option>SQL</option>
-      <option>VBA</option>
-      <option>Azure</option>
-      <option>Docker</option>
-      <option>前端</option>
-      <option>架构分析</option>
-      <option>快捷键</option>
+      <% if (site.categories && site.categories.length) { %>
+        <% site.categories.sort('name').forEach(function(cat){ %>
+          <option value="<%= cat.name %>"><%= cat.name %></option>
+        <% }); %>
+      <% } %>
     </select>
 
     <!-- 标签输入 -->
@@ -67,20 +59,35 @@
 
   <script>
     document.getElementById('newNoteForm').addEventListener('submit', async function(e){
-      e.preventDefault(); // 阻止表单默认刷新
+      e.preventDefault();
 
       const form = e.target;
+      const title = form.title.value;
+      const category = form.category.value;
+      const tags = form.tags.value.split(',').map(t => t.trim()).filter(Boolean);
+      const content = form.content.value;
+      const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+
+      // 构造符合 Hexo 标准的 Markdown 内容
+      let fullContent = "---\n";
+      fullContent += `title: ${title}\n`;
+      fullContent += `date: ${new Date().toISOString()}\n`;
+      if (category) fullContent += `categories: [${category}]\n`;
+      if (tags.length) fullContent += `tags: [${tags.join(', ')}]\n`;
+      fullContent += "---\n\n";
+      fullContent += content;
+
+      // 生成文件名
+      const filename = `source/_posts/${Date.now()}.md`;
+
       const payload = {
-        title: form.title.value,                  // 标题
-        category: form.category.value,            // 分类
-        tags: form.tags.value.split(',')          // 标签数组
-                  .map(t => t.trim())
-                  .filter(Boolean),
-        content: form.content.value               // 内容
+        path: filename,
+        title: title, // 保持对旧接口的兼容
+        content: fullContent,
+        message: `Create note: ${title}`
       };
 
       try {
-        // 调用 Vercel API 创建新笔记
         const res = await fetch('/api/new-note', {
           method: 'POST',
           headers: {'Content-Type':'application/json'},
@@ -91,9 +98,14 @@
 
         if(res.ok){
           alert('✅ 笔记创建成功！');
-          window.location.href = '/'; // 成功跳转首页
+          window.location.href = '/'; 
         } else {
-          alert('❌ 创建失败：' + JSON.stringify(data.error));
+          // 如果远程服务器报错，提供更详细的提示
+          let errMsg = data.error || JSON.stringify(data);
+          if (!isLocal && errMsg.includes("GITHUB_TOKEN")) {
+             errMsg = "远程服务器未配置 GITHUB_TOKEN，请检查 Vercel 环境变量设置。";
+          }
+          alert('❌ 创建失败：' + errMsg);
         }
       } catch(err){
         alert('❌ 网络或服务器错误：' + err.message);

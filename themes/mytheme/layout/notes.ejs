@@ -22,6 +22,7 @@
   const owner = "Sun1105";              // 替换成你的 GitHub 用户名
   const repo = "hexo-source";           // 替换成你的仓库名
   const postsDir = "source/_posts";     // Hexo 文章目录
+  const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
 
   const noteListDiv = document.getElementById('noteList');
 
@@ -31,7 +32,11 @@
   async function loadNotes() {
     noteListDiv.innerHTML = "加载中...";
     try {
-      const res = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${postsDir}`);
+      const fetchUrl = isLocal 
+        ? `/api/list-posts?path=${encodeURIComponent(postsDir)}`
+        : `https://api.github.com/repos/${owner}/${repo}/contents/${postsDir}`;
+        
+      const res = await fetch(fetchUrl);
       const data = await res.json();
       if(res.ok){
         noteListDiv.innerHTML = "";

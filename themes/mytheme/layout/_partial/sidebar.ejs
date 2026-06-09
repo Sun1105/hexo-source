@@ -8,16 +8,30 @@
   ============================ -->
 
   <!-- 分类导航 -->
-  <details class="sidebar-widget">
+  <details class="sidebar-widget" open>
     <summary class="sidebar-title">📘 分类导航</summary>
     <ul class="category-list">
       <% if (site.categories && site.categories.length) { %>
         <% site.categories.sort('name').forEach(function(cat){ %>
-          <li>
-            <a href="<%= url_for(cat.path) %>">
-              <span class="sidebar-name"><%= cat.name %></span>
-              <span class="sidebar-count"><%= cat.length %></span>
-            </a>
+          <li class="category-item">
+            <details class="category-details">
+              <summary class="category-summary">
+                <span class="sidebar-name"><%= cat.name %></span>
+                <span class="sidebar-count"><%= cat.length %></span>
+              </summary>
+              <ul class="category-post-list">
+                <% cat.posts.sort('date', -1).forEach(function(post){ %>
+                  <li>
+                    <a href="<%= url_for(post.path) %>" class="category-post-link" title="<%= post.title %>">
+                      <%= post.title %>
+                    </a>
+                  </li>
+                <% }) %>
+                <li>
+                  <a href="<%= url_for(cat.path) %>" class="category-view-all">查看全部...</a>
+                </li>
+              </ul>
+            </details>
           </li>
         <% }); %>
       <% } else { %>

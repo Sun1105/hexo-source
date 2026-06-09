@@ -262,18 +262,10 @@
     renderPreview(noteContent.value);
   });
 
-  // 关闭
+  // 取消按钮关闭
   cancelEditBtn.onclick = () => {
     editorModal.style.display = "none";
     editingNote = null;
-  };
-
-  // 点击外部关闭
-  window.onclick = (event) => {
-    if (event.target == editorModal) {
-      editorModal.style.display = "none";
-      editingNote = null;
-    }
   };
 
   // 保存
