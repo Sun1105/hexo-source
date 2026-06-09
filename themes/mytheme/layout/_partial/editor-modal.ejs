@@ -44,6 +44,7 @@
   const repo = "hexo-source";           // 仓库名
   const postsDir = "source/_posts";     // 文章目录
   let editingNote = null;               // 当前正在编辑的文章对象
+  const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
 
   const editorModal = document.getElementById('editorModal');
   const noteTitle = document.getElementById('noteTitle');
@@ -118,7 +119,11 @@
 
         try {
             console.log(`正在获取文件信息: ${encodedPath}`);
-            const res = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${encodedPath}`);
+            const fetchUrl = isLocal 
+                ? `/api/get-content?path=${encodedPath}` 
+                : `https://api.github.com/repos/${owner}/${repo}/contents/${encodedPath}`;
+            
+            const res = await fetch(fetchUrl);
             if (!res.ok) {
                 const errText = await res.text();
                 throw new Error(`无法获取文件信息 (Status: ${res.status}): ${errText}`);

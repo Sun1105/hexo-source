@@ -6,7 +6,9 @@
     "clean": "hexo clean",
     "build": "hexo clean && hexo generate",
     "deploy": "hexo deploy",
-    "start": "hexo server"
+    "start": "hexo server",
+    "debug": "node --inspect-brk node_modules/hexo/bin/hexo server --debug",
+    "debug:generate": "node --inspect-brk node_modules/hexo/bin/hexo generate --debug"
   },
   "hexo": {
     "version": "8.1.1"
