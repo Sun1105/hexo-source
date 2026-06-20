@@ -69,7 +69,7 @@ deploy:
   message: "Auto deploy from Hexo at {{ now('YYYY-MM-DD HH:mm:ss') }}"
   repo:
     # ① GitHub Pages 仓库：主站（https://sun1105-qc.github.io）
-    github: git@github.com:SUN1105-QC/sun1105.github.io.git,master
+    github: git@github.com:SUN1105-QC/SUN1105-QC.github.io.git,master
 
     # ② Vercel 部署仓库：用于 Vercel 自动构建（如 blog-source-lime.vercel.app）
     vercel: git@github.com:SUN1105-QC/hexo-deploy.git,main
